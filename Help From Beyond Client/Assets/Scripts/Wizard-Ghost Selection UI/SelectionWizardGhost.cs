@@ -41,8 +41,13 @@ public class SelectionWizardGhost : MonoBehaviour
         playerManagers = new List<PlayerManager>();
         _canvasGroup = GetComponent<CanvasGroup>();
         originalImageX = playerImages[0].transform.position.x;
-        _matchmakingClient = MatchmakingClient.Instance;
         UpdateAcceptImage();
+    }
+
+    // Start is called before the first frame update
+    private void Start()
+    {
+        _matchmakingClient = MatchmakingClient.Instance;
     }
 
     public void ShowUI()
@@ -74,47 +79,57 @@ public class SelectionWizardGhost : MonoBehaviour
 
     public void SearchOtherPlayer(bool playerFound)
     {
-        // Set the other player found global variable to the delegate variable
-        otherPlayerFound = playerFound;
-
-        if (!otherPlayerFound)
+        UnityMainThreadDispatcher.Instance.Enqueue( () =>
         {
-            selectPlayerText.gameObject.SetActive(false);
-            playerFoundText.gameObject.SetActive(false);
-            searchForPlayersText.gameObject.SetActive(true);
-
-            // For trial, wait a few seconds and then set otherPlayerFound to true
-            //StartCoroutine(SetOtherPlayerFound());
-
-            // Start a loading animation coroutine
-            if (searchPlayerTextCoroutine == null)
+            try
             {
-                // Start corroutine for dor loop
-                searchPlayerTextCoroutine = StartCoroutine(LoadingSearchForPlayerText());
+                // Set the other player found global variable to the delegate variable
+                otherPlayerFound = playerFound;
+
+                if (!otherPlayerFound)
+                {
+                    selectPlayerText.gameObject.SetActive(false);
+                    playerFoundText.gameObject.SetActive(false);
+                    searchForPlayersText.gameObject.SetActive(true);
+
+                    // For trial, wait a few seconds and then set otherPlayerFound to true
+                    //StartCoroutine(SetOtherPlayerFound());
+
+                    // Start a loading animation coroutine
+                    if (searchPlayerTextCoroutine == null)
+                    {
+                        // Start corroutine for dor loop
+                        searchPlayerTextCoroutine = StartCoroutine(LoadingSearchForPlayerText());
+                    }
+                }
+                else
+                {
+                    // Stop the corroutine and reset the text
+                    if (searchPlayerTextCoroutine != null)
+                    {
+                        StopCoroutine(searchPlayerTextCoroutine);
+                        searchPlayerTextCoroutine = null;
+                    }
+
+                    // Show player found text, and start the game
+                    selectPlayerText.gameObject.SetActive(false);
+                    searchForPlayersText.gameObject.SetActive(false);
+                    playerFoundText.gameObject.SetActive(true);
+
+                    if (foundPlayerTextCoroutine == null)
+                    {
+                        foundPlayerTextCoroutine = StartCoroutine(LoadingLevel());
+                    }
+
+                    // Start a courutine to wait a few seconds to load the game and then start it
+                    StartCoroutine(LoadAndHideUI());
+                }
             }
-        }
-        else
-        {
-            // Stop the corroutine and reset the text
-            if (searchPlayerTextCoroutine != null)
+            catch (System.Exception ex)
             {
-                StopCoroutine(searchPlayerTextCoroutine);
-                searchPlayerTextCoroutine = null;
+                Debug.LogError($"An error occurred in SearchOtherPlayer: {ex.Message}\n{ex.StackTrace}");
             }
-
-            // Show player found text, and start the game
-            selectPlayerText.gameObject.SetActive(false);
-            searchForPlayersText.gameObject.SetActive(false);
-            playerFoundText.gameObject.SetActive(true);
-
-            if (foundPlayerTextCoroutine == null)
-            {
-                foundPlayerTextCoroutine = StartCoroutine(LoadingLevel());
-            }
-
-            // Start a courutine to wait a few seconds to load the game and then start it
-            StartCoroutine(LoadAndHideUI());
-        }
+        });
     }
 
     private IEnumerator LoadingSearchForPlayerText()
@@ -225,17 +240,34 @@ public class SelectionWizardGhost : MonoBehaviour
 
     public void PlayerAccept()
     {
-        if (players.Count == 1 && inputEnabled && (playerRolPosition[0] == -1 || playerRolPosition[0] == 1))
+        if (players.Count == 1 && inputEnabled)
         {
+            // Determine the role based on local selection (Wizard = 1, Ghost = -1)
+            int role = playerRolPosition[0];
+            if (role == 1)
+            {
+                SetWizardOrGhost(1);
+            }
+            else if (role == -1)
+            {
+                SetWizardOrGhost(-1);
+            }
+            else
+            {
+                Debug.LogError("Ivalid role selected: " + role);
+                return;
+            }
+
             //set players as ghost and wizard
             //SetWizardOrGhost(0);
             //SetWizardOrGhost(1);
 
             // Determine the role based on player selection
-            string role = playerRolPosition[0] == 1 ? "Wizard" : "Ghost";
+            string roleString = role == 1 ? "Wizard" : "Ghost";
+            Debug.Log($"Player selected role: {roleString}");
 
             // Send role to the server for matchmaking
-            _matchmakingClient.SelectRole(role);
+            _matchmakingClient.SelectRole(roleString);
 
             // Show "Searchin for other player" UI
             SearchOtherPlayer(false);
@@ -292,17 +324,19 @@ public class SelectionWizardGhost : MonoBehaviour
         acceptImageCanvas.alpha = 0;
     }
 
-    private void SetWizardOrGhost(int index)
+    public void SetWizardOrGhost(int role)
     {
-        if (playerRolPosition[index] == 1)
+        if (role == 1)
         {
-            players[index].SetInputMap(CurrentInputState.Wizard);
-            playerManagers[index].SetCurrentState(PlayerState.Wizard);
+            Debug.Log("Setting player as Wizard");
+            players[0].SetInputMap(CurrentInputState.Wizard);
+            playerManagers[0].SetCurrentState(PlayerState.Wizard);
         }
-        else if (playerRolPosition[index] == -1)
+        else if (role == -1)
         {
-            players[index].SetInputMap(CurrentInputState.Ghost);
-            playerManagers[index].SetCurrentState(PlayerState.Ghost);
+            Debug.Log("Setting player as Ghost");
+            players[0].SetInputMap(CurrentInputState.Ghost);
+            playerManagers[0].SetCurrentState(PlayerState.Ghost);
         }
         else
         {

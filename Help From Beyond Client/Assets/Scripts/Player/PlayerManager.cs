@@ -67,7 +67,9 @@ public class PlayerManager : MonoBehaviour
         {
             case PlayerState.Wizard:
                 currentState = playerState;
+                Debug.Log("Setting tag to ActiveWizard");
                 tag = "ActiveWizard";
+                Debug.Log("Tag Wizard set successfully");
                 _rigidBody2D.simulated = true;
                 _rigidBody2D.gravityScale = 1;
                 _rigidBody2D.drag = 0.1f;
@@ -79,7 +81,9 @@ public class PlayerManager : MonoBehaviour
                 break;
             case PlayerState.Ghost:
                 currentState = playerState;
+                Debug.Log("Setting tag to ActiveGhost");
                 tag = "ActiveGhost";
+                Debug.Log("Tag Ghost set successfully");
                 _rigidBody2D.gravityScale = 0;
                 _rigidBody2D.drag = 1f;
                 _rigidBody2D.simulated = true;
