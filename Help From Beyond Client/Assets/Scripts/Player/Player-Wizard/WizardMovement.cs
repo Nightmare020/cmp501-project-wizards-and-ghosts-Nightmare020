@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using Unity.Netcode;
 
 
-public class WizardMovement : MonoBehaviour
+public class WizardMovement : NetworkBehaviour
 {
     private WizardValues _wizardValues;
     private float _gamePadAddedSpeed;

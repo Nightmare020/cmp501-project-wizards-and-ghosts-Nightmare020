@@ -1,6 +1,7 @@
 using UnityEngine;
+using Unity.Netcode;
 
-public class GhostMovement : MonoBehaviour
+public class GhostMovement : NetworkBehaviour
 {
     private GhostValues _ghostValues;
     private float _gamePadAddedSpeed;
