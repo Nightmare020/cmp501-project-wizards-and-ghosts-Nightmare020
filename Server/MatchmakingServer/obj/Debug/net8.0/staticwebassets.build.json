@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "vGD2IjJlkoB9t/+JiAxTE8tMIXy5l9TEfkUsus8csa0=",
+  "Source": "MatchmakingServer",
+  "BasePath": "_content/MatchmakingServer",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
