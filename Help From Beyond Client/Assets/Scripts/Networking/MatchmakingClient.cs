@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
+using Unity.Netcode;
 
 public class MatchmakingClient : MonoBehaviour
 {
@@ -31,7 +32,7 @@ public class MatchmakingClient : MonoBehaviour
         Debug.Log("Initializing hub connection...");
 
         _hubConnection = new HubConnectionBuilder()
-            .WithUrl("http://localhost:5191/matchmaking") // replace with my server URL
+            .WithUrl("http://localhost:5077/matchmaking") // replace with my server URL
             .WithAutomaticReconnect()
             .Build();
 
@@ -78,5 +79,17 @@ public class MatchmakingClient : MonoBehaviour
         {
             SelectionWizardGhost.NotifyPlayerFound(true);
         });
+    }
+
+    private void SpawnPlayer(string role)
+    {
+        if (NetworkManager.Singleton.IsClient) 
+        {
+            Debug.Log("Spawning player on server...");
+
+            // Get the local player instance and set the role
+            PlayerManager localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerManager>();
+            //localPlayer.Set
+        }
     }
 }
