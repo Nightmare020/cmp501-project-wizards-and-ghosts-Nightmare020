@@ -4,7 +4,7 @@ using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
 using Unity.Netcode;
 
-public class MatchmakingClient : MonoBehaviour
+public class MatchmakingClient : NetworkBehaviour
 {
     private HubConnection _hubConnection;
     private SelectionWizardGhost _selectionPanel;
@@ -45,6 +45,13 @@ public class MatchmakingClient : MonoBehaviour
         {
             await _hubConnection.StartAsync();
             Debug.Log("Connected to server");
+
+            // Start Unity Netcode client if not started yet
+            if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
+            {
+                Debug.Log("Starting Unity Netcode Client...");
+                NetworkManager.Singleton.StartClient();
+            }
         }
         catch (System.Exception ex)
         {
