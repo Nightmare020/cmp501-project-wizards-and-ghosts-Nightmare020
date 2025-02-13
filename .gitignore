@@ -12,6 +12,7 @@
 /Clients/*/.vsconfig
 /Clients/*/Library/
 /Clients/*/Assets/Universal Sound FX/
+/Clients/*/Assets/Shaders/shader materials/
 /Clients/*/Logs/
 /Clients/*/obj/
 /Clients/*/Temp/
@@ -82,3 +83,15 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+Clients/Help From Beyond Client_clone_0/Assets/Shaders/shader materials/GhostRealityMaterial.mat
+Server/MatchmakingServer/bin/Debug/net8.0/MatchmakingServer.dll
+Server/MatchmakingServer/bin/Debug/net8.0/MatchmakingServer.exe
+Server/MatchmakingServer/obj/Debug/net8.0/apphost.exe
+Server/MatchmakingServer/obj/Debug/net8.0/MatchmakingServer.AssemblyInfo.cs
+Server/MatchmakingServer/obj/Debug/net8.0/MatchmakingServer.AssemblyInfoInputs.cache
+Server/MatchmakingServer/obj/Debug/net8.0/MatchmakingServer.dll
+Server/MatchmakingServer/obj/Debug/net8.0/MatchmakingServer.sourcelink.json
+Server/MatchmakingServer/obj/Debug/net8.0/ref/MatchmakingServer.dll
+Server/MatchmakingServer/obj/Debug/net8.0/refint/MatchmakingServer.dll
+Clients/Help From Beyond Client/Assets/Shaders/shader materials/GhostRealityMaterial.mat
+Clients/Help From Beyond Client_clone_0/Assets/Shaders/shader materials/GhostRealityMaterial.mat
