@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Ghost
+  - Wizard
+  - Trampoline
+  - Wizard Enemy
+  - Ghost Enemy
+  - Lava
+  - ActiveWizard
+  - ActiveGhost
+  - InstanceItem
+  - PowerUpItem
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Walkeable
+  - Water
+  - UI
+  - Bullet
+  - Player
+  - Enemy
+  - WizardEnemy
+  - GhostEnemy
+  - Ghost
+  - Lava
+  - Wall
+  - Items
+  - Trampolin
+  - BarrierGhost
+  - BarrierKey
+  - GhostKey
+  - PlayerKey
+  - DeployedTrampoline
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 4203901431
+    locked: 0
+  - name: Details
+    uniqueID: 2582300973
+    locked: 0
+  - name: Ground
+    uniqueID: 1286769675
+    locked: 0
+  - name: Enemies
+    uniqueID: 3315066259
+    locked: 0
+  - name: Player
+    uniqueID: 65430395
+    locked: 0
+  - name: Foreground
+    uniqueID: 509626227
+    locked: 0
+  - name: GreyFilter
+    uniqueID: 2251861885
+    locked: 0
+  - name: Ghost Thing
+    uniqueID: 634630641
+    locked: 0
+  - name: Hud
+    uniqueID: 4113879653
+    locked: 0
+  - name: Keys
+    uniqueID: 4088337275
+    locked: 0
+  - name: Barriers
+    uniqueID: 3148438827
+    locked: 0

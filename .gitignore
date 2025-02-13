@@ -9,6 +9,18 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+/Clients/*/.vsconfig
+/Clients/*/Library/
+/Clients/*/Assets/Universal Sound FX/
+/Clients/*/Logs/
+/Clients/*/obj/
+/Clients/*/Temp/
+/Server/*/.vsconfig
+/Server/*/Library/
+/Server/*/Logs/
+/Server/*/Temp/
+/Server/Help From Beyond Server/obj/
+/Server/MatchmakingServer/obj/
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data

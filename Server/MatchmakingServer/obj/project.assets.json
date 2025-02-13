@@ -2018,11 +2018,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Documents\\Github\\cmp501-project-wizards-and-ghosts-Nightmare020\\Help From Beyond Server\\MatchmakingServer\\MatchmakingServer.csproj",
+      "projectUniqueName": "C:\\Users\\User\\Documents\\Github\\cmp501-project-wizards-and-ghosts-Nightmare020\\Server\\MatchmakingServer\\MatchmakingServer.csproj",
       "projectName": "MatchmakingServer",
-      "projectPath": "C:\\Users\\User\\Documents\\Github\\cmp501-project-wizards-and-ghosts-Nightmare020\\Help From Beyond Server\\MatchmakingServer\\MatchmakingServer.csproj",
+      "projectPath": "C:\\Users\\User\\Documents\\Github\\cmp501-project-wizards-and-ghosts-Nightmare020\\Server\\MatchmakingServer\\MatchmakingServer.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Documents\\Github\\cmp501-project-wizards-and-ghosts-Nightmare020\\Help From Beyond Server\\MatchmakingServer\\obj\\",
+      "outputPath": "C:\\Users\\User\\Documents\\Github\\cmp501-project-wizards-and-ghosts-Nightmare020\\Server\\MatchmakingServer\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
