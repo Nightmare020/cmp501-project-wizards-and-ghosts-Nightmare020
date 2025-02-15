@@ -4,11 +4,11 @@ using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
 using Unity.Netcode;
 
-public class MatchmakingClient : NetworkBehaviour
+public class MatchmakingServer : MonoBehaviour
 {
     private HubConnection _hubConnection;
     private SelectionWizardGhost _selectionPanel;
-    public static MatchmakingClient Instance { get; private set; }
+    public static MatchmakingServer Instance { get; private set; }
 
     public string MatchedRole { get; private set; }
 
@@ -86,17 +86,5 @@ public class MatchmakingClient : NetworkBehaviour
         {
             SelectionWizardGhost.NotifyPlayerFound(true);
         });
-    }
-
-    private void SpawnPlayer(string role)
-    {
-        if (NetworkManager.Singleton.IsClient) 
-        {
-            Debug.Log("Spawning player on server...");
-
-            // Get the local player instance and set the role
-            PlayerManager localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerManager>();
-            //localPlayer.Set
-        }
     }
 }

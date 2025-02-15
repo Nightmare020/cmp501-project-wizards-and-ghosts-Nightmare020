@@ -92,9 +92,6 @@ public class SelectionWizardGhost : MonoBehaviour
                     playerFoundText.gameObject.SetActive(false);
                     searchForPlayersText.gameObject.SetActive(true);
 
-                    // For trial, wait a few seconds and then set otherPlayerFound to true
-                    //StartCoroutine(SetOtherPlayerFound());
-
                     // Start a loading animation coroutine
                     if (searchPlayerTextCoroutine == null)
                     {
@@ -166,15 +163,6 @@ public class SelectionWizardGhost : MonoBehaviour
         }
     }
 
-    //private IEnumerator SetOtherPlayerFound()
-    //{
-    //    // Wait for seconds
-    //    yield return new WaitForSeconds(12f);
-
-    //    // Make other player found
-    //    SearchOtherPlayer(true);
-    //}
-
     public static void NotifyPlayerFound(bool found)
     {
         OnPlayerFoundChanged?.Invoke(found);
@@ -244,6 +232,7 @@ public class SelectionWizardGhost : MonoBehaviour
         {
             // Determine the role based on local selection (Wizard = 1, Ghost = -1)
             int role = playerRolPosition[0];
+
             if (role == 1)
             {
                 SetWizardOrGhost(1);
@@ -257,10 +246,6 @@ public class SelectionWizardGhost : MonoBehaviour
                 Debug.LogError("Ivalid role selected: " + role);
                 return;
             }
-
-            //set players as ghost and wizard
-            //SetWizardOrGhost(0);
-            //SetWizardOrGhost(1);
 
             // Determine the role based on player selection
             string roleString = role == 1 ? "Wizard" : "Ghost";

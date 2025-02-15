@@ -21,7 +21,7 @@ public class SelectionWizardGhost : MonoBehaviour
     [SerializeField] private TMP_Text playerFoundText;
     [SerializeField] private List<Image> playerImages;
     [SerializeField] private Transform wizardX, ghostX;
-    private MatchmakingClient _matchmakingClient;
+    private MatchmakingServer _matchmakingServer;
 
     //inputs
     public bool inputEnabled;
@@ -47,7 +47,7 @@ public class SelectionWizardGhost : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        _matchmakingClient = MatchmakingClient.Instance;
+        _matchmakingServer = MatchmakingServer.Instance;
     }
 
     public void ShowUI()
@@ -166,15 +166,6 @@ public class SelectionWizardGhost : MonoBehaviour
         }
     }
 
-    //private IEnumerator SetOtherPlayerFound()
-    //{
-    //    // Wait for seconds
-    //    yield return new WaitForSeconds(12f);
-
-    //    // Make other player found
-    //    SearchOtherPlayer(true);
-    //}
-
     public static void NotifyPlayerFound(bool found)
     {
         OnPlayerFoundChanged?.Invoke(found);
@@ -258,21 +249,17 @@ public class SelectionWizardGhost : MonoBehaviour
                 return;
             }
 
-            //set players as ghost and wizard
-            //SetWizardOrGhost(0);
-            //SetWizardOrGhost(1);
-
             // Determine the role based on player selection
             string roleString = role == 1 ? "Wizard" : "Ghost";
             Debug.Log($"Player selected role: {roleString}");
 
             // Send role to the server for matchmaking
-            _matchmakingClient.SelectRole(roleString);
+            _matchmakingServer.SelectRole(roleString);
 
             // Show "Searchin for other player" UI
             SearchOtherPlayer(false);
 
-            //HideUI();
+
             print("Accepted");
         }
         else

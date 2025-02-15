@@ -4,7 +4,7 @@ using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
 using Unity.Netcode;
 
-public class MatchmakingClient : NetworkBehaviour
+public class MatchmakingClient : MonoBehaviour
 {
     private HubConnection _hubConnection;
     private SelectionWizardGhost _selectionPanel;
@@ -64,6 +64,7 @@ public class MatchmakingClient : NetworkBehaviour
         if (_hubConnection == null)
         {
             Debug.LogError("Hub connection is not initialized yet");
+            return;
         }
 
         if (_hubConnection.State == HubConnectionState.Connected)
