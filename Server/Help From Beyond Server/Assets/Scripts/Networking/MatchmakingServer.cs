@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
 using Unity.Netcode;
+using System.Runtime.CompilerServices;
 
-public class MatchmakingServer : MonoBehaviour
+public class MatchmakingServer : NetworkBehaviour
 {
     private HubConnection _hubConnection;
     private SelectionWizardGhost _selectionPanel;
     public static MatchmakingServer Instance { get; private set; }
+    public GameObject playerPrefab;
+    private Dictionary<ulong, string> playerRoles = new Dictionary<ulong, string>();
 
     public string MatchedRole { get; private set; }
 
@@ -86,5 +89,44 @@ public class MatchmakingServer : MonoBehaviour
         {
             SelectionWizardGhost.NotifyPlayerFound(true);
         });
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (!IsServer) return;
+        Debug.Log("Matchmaking Server started");
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SelectRoleServerRpc(ulong clientId, string role)
+    {
+        if (!IsServer) return;
+
+        // Assign role to player
+        playerRoles[clientId] = role;
+        Debug.Log($"Player {clientId} selected {role}");
+
+        // If two players have joined, start the game
+        if (playerRoles.Count == 2) 
+        {
+            StartMatch();
+        }
+    }
+
+    private void StartMatch()
+    {
+        foreach (var role in playerRoles) 
+        {
+            ulong clientId = role.Key;
+            string roleSelected = role.Value;
+
+            // Spawn the player with assigned role
+            GameObject newPlayer = Instantiate(playerPrefab);
+            NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
+            networkObject.SpawnAsPlayerObject(clientId);
+
+            // Assign role to the new player
+            newPlayer.GetComponent<PlayerManager>().SetCurrentState(roleSelected == "Wizard" ? PlayerState.Wizard : PlayerState.Ghost);
+        }
     }
 }

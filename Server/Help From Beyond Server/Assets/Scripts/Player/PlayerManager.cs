@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 using Utils;
 
@@ -10,9 +11,9 @@ public enum PlayerState
     Dead
 }
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : NetworkBehaviour
 {
-    public PlayerState currentState;
+    public NetworkVariable<PlayerState> currentState = new NetworkVariable<PlayerState>();
     [SerializeField] private GameObject wizard, ghost, dead;
     [NonSerialized] public Camera _camera;
     [NonSerialized] public CameraShake cameraShake;
@@ -34,7 +35,7 @@ public class PlayerManager : MonoBehaviour
         cameraShake = _camera.GetComponent<CameraShake>();
         cameraFollow = _camera.GetComponent<CameraFollow>();
         _rigidBody2D = GetComponent<Rigidbody2D>();
-        SetCurrentState(currentState);
+        SetCurrentState(currentState.Value);
     }
 
     public PlayerManager GetOtherPlayer()
@@ -66,7 +67,7 @@ public class PlayerManager : MonoBehaviour
         switch (playerState)
         {
             case PlayerState.Wizard:
-                currentState = playerState;
+                currentState.Value = playerState;
                 Debug.Log("Setting tag to ActiveWizard");
                 tag = "ActiveWizard";
                 Debug.Log("Tag Wizard set successfully");
@@ -80,7 +81,7 @@ public class PlayerManager : MonoBehaviour
                 cameraFollow.m_Target = transform;
                 break;
             case PlayerState.Ghost:
-                currentState = playerState;
+                currentState.Value = playerState;
                 Debug.Log("Setting tag to ActiveGhost");
                 tag = "ActiveGhost";
                 Debug.Log("Tag Ghost set successfully");
@@ -104,7 +105,7 @@ public class PlayerManager : MonoBehaviour
 
     public void Resurrect()
     {
-        SetCurrentState(currentState);
+        SetCurrentState(currentState.Value);
         StartCoroutine(InvulnerabilityCoroutine(3));
     }
 
@@ -153,7 +154,7 @@ public class PlayerManager : MonoBehaviour
     {
         Physics2D.IgnoreLayerCollision(7, 8);
 
-        if (currentState is PlayerState.Wizard)
+        if (currentState.Value is PlayerState.Wizard)
         {
             Physics2D.IgnoreLayerCollision(7, 9);
 
@@ -164,7 +165,7 @@ public class PlayerManager : MonoBehaviour
             //alfa =1  
             _spriteRendererWizard.color = Color.white;
         }
-        else if (currentState is PlayerState.Ghost)
+        else if (currentState.Value is PlayerState.Ghost)
         {
             Physics2D.IgnoreLayerCollision(7, 10);
             yield return new WaitForSeconds(seconds);
