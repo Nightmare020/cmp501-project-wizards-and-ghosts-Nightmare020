@@ -35,7 +35,6 @@ public class PlayerManager : NetworkBehaviour
         cameraShake = _camera.GetComponent<CameraShake>();
         cameraFollow = _camera.GetComponent<CameraFollow>();
         _rigidBody2D = GetComponent<Rigidbody2D>();
-        SetCurrentState(currentState.Value);
     }
 
     public PlayerManager GetOtherPlayer()
@@ -120,7 +119,7 @@ public class PlayerManager : NetworkBehaviour
             }
             else
             {
-                MySceneLoader.LoadMainMenu();
+                Debug.Log("Game Over");
             }
         }
         else
@@ -140,7 +139,7 @@ public class PlayerManager : NetworkBehaviour
             }
             else
             {
-                MySceneLoader.LoadMainMenu();
+                Debug.Log("Game Over");
             }
         }
         else

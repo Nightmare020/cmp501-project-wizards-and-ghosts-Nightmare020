@@ -17,11 +17,6 @@ namespace Utils
             }
         }
 
-        public static void LoadMainMenu()
-        {
-            SceneManager.LoadScene("StartMenu");
-        }
-
         public static void LoadSettings()
         {
             SceneManager.LoadScene("SettingsMenu");

@@ -38,7 +38,7 @@ public class ArcadeLeaderboardsScreenManager : MonoBehaviour
         }
         else if (_inputManager.NavigationReturn())
         {
-            MySceneLoader.LoadMainMenu();
+            Debug.Log("Load main menu");
         }
     }
 }

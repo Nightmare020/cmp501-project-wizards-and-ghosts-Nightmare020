@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 public class MatchmakingServer : NetworkBehaviour
 {
     private HubConnection _hubConnection;
-    private SelectionWizardGhost _selectionPanel;
     public static MatchmakingServer Instance { get; private set; }
     public GameObject playerPrefab;
     private Dictionary<ulong, string> playerRoles = new Dictionary<ulong, string>();
@@ -27,7 +26,7 @@ public class MatchmakingServer : NetworkBehaviour
             Destroy(gameObject);
         }
 
-        _selectionPanel = FindObjectOfType<SelectionWizardGhost>();
+        //_selectionPanel = FindObjectOfType<SelectionWizardGhost>();
     }
     // Start is called before the first frame update
     private async void Start()
@@ -62,26 +61,8 @@ public class MatchmakingServer : NetworkBehaviour
         }
     }
 
-    public async void SelectRole(string role)
-    {
-        if (_hubConnection == null)
-        {
-            Debug.LogError("Hub connection is not initialized yet");
-        }
-
-        if (_hubConnection.State == HubConnectionState.Connected)
-        {
-            await _hubConnection.InvokeAsync("SelectRole", role);
-        }
-        else
-        {
-            Debug.LogError("Not connected to server");
-        }
-    }
-
     private void OnMatched(string role)
     {
-        MatchedRole = role;
         Debug.Log($"Matched as {role}");
 
         // Notify character selection class that a match was found

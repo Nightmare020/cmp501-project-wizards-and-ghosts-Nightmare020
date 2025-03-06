@@ -179,7 +179,7 @@ public class PauseMenu : MonoBehaviour
     public void GoToMainMenu()
     {
         Time.timeScale = 1f;
-        MySceneLoader.LoadMainMenu();
+        Debug.Log("Go to main menu");
     }
 
     public void QuitGame()

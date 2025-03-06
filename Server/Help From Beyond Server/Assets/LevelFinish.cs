@@ -38,6 +38,9 @@ public class LevelFinish : MonoBehaviour
 
     private void CheckLevelComplete()
     {
-        if (wizardCompleted && ghostCompleted) MySceneLoader.LoadMainMenu();
+        if (wizardCompleted && ghostCompleted)
+        {
+            Debug.Log("Level complete");
+        }
     }
 }

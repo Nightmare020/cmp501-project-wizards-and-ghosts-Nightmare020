@@ -163,10 +163,6 @@ public class SettingsMenuManager : MonoBehaviour
                 resolutionDropdown.Hide();
                 isDropdownSelected = false;
             }
-            else
-            {
-                Return();
-            }
 
             //play sound 
             _navegationSounds.PlaySelectSound();
@@ -261,12 +257,6 @@ public class SettingsMenuManager : MonoBehaviour
     public void ChangeVolume(float sliderValue)
     {
         mixer.SetFloat("AudioVolume", Mathf.Log10(sliderValue) * 20);
-    }
-
-    public void Return()
-    {
-        MySceneLoader.LoadMainMenu();
-        // SceneManager.LoadScene("StartMenu");
     }
 
     private void LevitationEffect()

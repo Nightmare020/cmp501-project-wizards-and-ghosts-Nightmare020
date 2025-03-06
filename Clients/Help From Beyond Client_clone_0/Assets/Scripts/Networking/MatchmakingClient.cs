@@ -4,7 +4,7 @@ using UnityEngine;
 using Microsoft.AspNetCore.SignalR.Client;
 using Unity.Netcode;
 
-public class MatchmakingClient : MonoBehaviour
+public class MatchmakingClient : NetworkBehaviour
 {
     private HubConnection _hubConnection;
     private SelectionWizardGhost _selectionPanel;
@@ -87,17 +87,32 @@ public class MatchmakingClient : MonoBehaviour
         {
             SelectionWizardGhost.NotifyPlayerFound(true);
         });
+
+        // Spawn the player on the server
+        RequestPlayerSpawnServerRpc(role);
     }
 
-    private void SpawnPlayer(string role)
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestPlayerSpawnServerRpc(string role, ServerRpcParams rpcParams = default)
     {
-        if (NetworkManager.Singleton.IsClient) 
-        {
-            Debug.Log("Spawning player on server...");
+        ulong clientId = rpcParams.Receive.SenderClientId;
+        GameObject newPlayer = Instantiate(NetworkManager.Singleton.NetworkConfig.PlayerPrefab);
+        NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
+        networkObject.SpawnAsPlayerObject(clientId);
 
-            // Get the local player instance and set the role
-            PlayerManager localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerManager>();
-            //localPlayer.Set
-        }
+        // Assign role to the new player
+        newPlayer.GetComponent<PlayerManager>().SetCurrentState(role == "Wizard" ? PlayerState.Wizard : PlayerState.Ghost);
     }
+
+    //private void SpawnPlayer(string role)
+    //{
+    //    if (NetworkManager.Singleton.IsClient) 
+    //    {
+    //        Debug.Log("Spawning player on server...");
+
+    //        // Get the local player instance and set the role
+    //        PlayerManager localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerManager>();
+    //        localPlayer.SetCurrentState(role == "Wizard" ? PlayerState.Wizard : PlayerState.Ghost);
+    //    }
+    //}
 }
