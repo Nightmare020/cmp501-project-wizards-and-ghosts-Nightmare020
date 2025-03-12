@@ -742,7 +742,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7101614099959887206
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1242,7 +1242,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7cf8a6cd454117468d705a679f38b23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentState: 0
+  currentState:
+    m_InternalValue: 0
   wizard: {fileID: 2597758118102961652}
   ghost: {fileID: 1003782997826075125}
   dead: {fileID: 3150205241240628197}
@@ -1905,7 +1906,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &6277985361652915621
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1982,7 +1983,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3637904479700901847
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2124,7 +2125,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &326529960547702512
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2879,6 +2880,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   distance: 2
   _playerManager: {fileID: 1334003489671196893}
+  _otherPlayer: {fileID: 0}
 --- !u!1 &6900869239556015486
 GameObject:
   m_ObjectHideFlags: 0
