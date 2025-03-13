@@ -11,7 +11,7 @@ public class GhostValues : MonoBehaviour
     public Rigidbody2D rigidBody;
     public SpriteRenderer spriteRenderer;
     [NonSerialized] public GhostAnimationManager animationManager;
-    [NonSerialized] public new BoxCollider2D collider2D;
+    [NonSerialized] public BoxCollider2D collider2D;
     private PauseMenu _pauseMenu;
 
     private void Awake()
