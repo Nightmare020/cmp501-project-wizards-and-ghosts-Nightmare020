@@ -392,9 +392,7 @@ GameObject:
   - component: {fileID: 2512013026915871738}
   - component: {fileID: 1210561909656164497}
   - component: {fileID: 6522862988121365314}
-  - component: {fileID: 829597680623954752}
   - component: {fileID: 4035409913952007637}
-  - component: {fileID: 8506466747302387332}
   - component: {fileID: 6649898487133359813}
   m_Layer: 11
   m_Name: Ghost
@@ -518,20 +516,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b0748eba0f9b8a489649e869bc86d68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &829597680623954752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1003782997826075125}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9a26ed2983dcc14fbbdf49220a338bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _heldItem: {fileID: 0}
-  _objectInrange: {fileID: 0}
 --- !u!114 &4035409913952007637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -548,23 +532,6 @@ MonoBehaviour:
   JumpTutorial: {fileID: 375440991796546543}
   min: -2
   max: -1
---- !u!114 &8506466747302387332
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1003782997826075125}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37d7f7e9a71bfa34999a00b5d2c04ee5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _mainCollider: {fileID: 2111115831241569802}
-  _trampolinePrefab: {fileID: 7058410392058308143, guid: 56803aef76090f546932ad5d2ec79ca5, type: 3}
-  distance: 1
-  shooterSpriteTransform: {fileID: 3053682351417363511}
-  ShootingEnabled: 1
 --- !u!212 &6649898487133359813
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -890,8 +857,6 @@ GameObject:
   - component: {fileID: 2597758118102961658}
   - component: {fileID: 2597758118102961659}
   - component: {fileID: 7407673112527608831}
-  - component: {fileID: 1155847835840673991}
-  - component: {fileID: 3016597363341321392}
   - component: {fileID: 8349854867884038573}
   m_Layer: 7
   m_Name: Wizard
@@ -984,39 +949,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spriteRenderer: {fileID: 5976930614318408725}
---- !u!114 &1155847835840673991
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2597758118102961652}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 626fa5ab88757234696a1b2b4d932ca8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  distance: 1
-  speed: 10
-  shooterSpriteTransform: {fileID: 9160190371023328138}
-  ShootingEnabled: 1
-  fastShootiingEnabled: 0
-  bulletTemplate: {fileID: 11891641706342740, guid: 2365bd82988355f44ba0d5e53ced2c80, type: 3}
-  _bulletPool: {fileID: 6319975481429812802}
---- !u!114 &3016597363341321392
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2597758118102961652}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9a26ed2983dcc14fbbdf49220a338bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _heldItem: {fileID: 0}
-  _objectInrange: {fileID: 0}
 --- !u!61 &8349854867884038573
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -11,10 +11,10 @@ public class Resurrect : MonoBehaviour
     [SerializeField] private LayerMask ground;
     [SerializeField] private CanvasGroup sliderCanvas;
     [SerializeField] private Slider _slider;
-    [SerializeField] private float min = -2, max = -1;
+    [SerializeField] private float min = -2;
     [SerializeField] private Transform referencePoint;
-    private float value = 0;
-    [SerializeField] private float factor = 0.1f;
+    //private float value = 0;
+    //[SerializeField] private float factor = 0.1f;
     private List<Transform> _spawnPoints;
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private List<Sprite> treeSprites;
@@ -78,20 +78,20 @@ public class Resurrect : MonoBehaviour
         //}
     }
 
-    private Vector2 GetClosestCheckpoint()
-    {
-        float minDist = Single.PositiveInfinity;
-        Vector2 closest = transform.position;
-        for (int i = 0; i < _spawnPoints.Count; i++)
-        {
-            float dist = Vector2.Distance(transform.position, _spawnPoints[i].position);
-            if (dist < minDist)
-            {
-                minDist = dist;
-                closest = _spawnPoints[i].position;
-            }
-        }
+    //private Vector2 GetClosestCheckpoint()
+    //{
+    //    float minDist = Single.PositiveInfinity;
+    //    Vector2 closest = transform.position;
+    //    for (int i = 0; i < _spawnPoints.Count; i++)
+    //    {
+    //        float dist = Vector2.Distance(transform.position, _spawnPoints[i].position);
+    //        if (dist < minDist)
+    //        {
+    //            minDist = dist;
+    //            closest = _spawnPoints[i].position;
+    //        }
+    //    }
 
-        return closest;
-    }
+    //    return closest;
+    //}
 }

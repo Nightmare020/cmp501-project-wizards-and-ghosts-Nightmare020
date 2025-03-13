@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Enemies;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -34,9 +33,6 @@ public class ArcadeManager : MonoBehaviour
     private WizardValues _wizardValues;
     private GhostValues _ghostValues;
 
-    //enemies
-    private EnemyManager _enemyManager;
-
     //points
     private int wizardPoints = 0, ghostPoints = 0;
 
@@ -54,7 +50,6 @@ public class ArcadeManager : MonoBehaviour
     private void Awake()
     {
         timer = gameObject.AddComponent<MyStopwatch>();
-        _enemyManager = FindObjectOfType<EnemyManager>();
         _jsonSaving = FindObjectOfType<JsonSaving>();
         _saveData = _jsonSaving._saveData;
     }
@@ -231,16 +226,9 @@ public class ArcadeManager : MonoBehaviour
         _emerginPointsPool.GetText().StartPoints(timeText.transform.position, "+" + 5);
         timer.SubtractTime(5);
 
-
-        if (wizardPoints % 10 == 0)
-        {
-            _enemyManager.IncreaseDifficultyGhost();
-        }
-
         if (AllCoinsCollected(wizardCoins))
         {
             LocatePoints(wizardCoinsSpawns, wizardCoins);
-            _enemyManager.IncreaseDifficulty();
         }
 
         PrintCoins();
@@ -265,15 +253,9 @@ public class ArcadeManager : MonoBehaviour
         _emerginPointsPool.GetText().StartPoints(timeText.transform.position, "+" + 5);
         timer.SubtractTime(5);
 
-        if (ghostPoints % 10 == 0)
-        {
-            _enemyManager.IncreaseDifficultyWizard();
-        }
-
         if (AllCoinsCollected(ghostCoins))
         {
             LocatePoints(ghostCoinsSpawns, ghostCoins);
-            _enemyManager.IncreaseDifficulty();
         }
 
         PrintCoins();

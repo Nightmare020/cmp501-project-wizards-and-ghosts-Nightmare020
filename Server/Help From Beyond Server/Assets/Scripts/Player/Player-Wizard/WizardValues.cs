@@ -12,7 +12,7 @@ public class WizardValues : MonoBehaviour
     public Rigidbody2D rigidBody;
     public SpriteRenderer WizardSpriteRenderer;
     [NonSerialized] public WizardAnimationManager animationManager;
-    [NonSerialized] public BoxCollider2D collider2D;
+    [NonSerialized] public new BoxCollider2D collider2D;
     [SerializeField] private ContactFilter2D walkeableLayers;
     public float minDistanceToGhost;
     private MyInputManager _inputManager;
