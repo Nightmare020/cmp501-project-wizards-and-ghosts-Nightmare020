@@ -8,6 +8,7 @@ public class Bullet : MonoBehaviour
     [SerializeField] private Rigidbody2D _rigidbody2D;
     [SerializeField] private SpriteRenderer _sprite;
     [SerializeField] private CircleCollider2D _collider2D;
+    //private EnemyManager _enemyManager;
     private static readonly int Shoot1 = Animator.StringToHash("Shoot");
     private static readonly int Die = Animator.StringToHash("die");
     public bool isBeingUsed = false;
@@ -42,6 +43,7 @@ public class Bullet : MonoBehaviour
         children = new List<Transform>();
         children.AddRange(GetComponentsInChildren<Transform>());
 
+        //_enemyManager = FindObjectOfType<EnemyManager>();
         shootEffect.parent = null;
         impactEffect.parent = null;
         bounceEffect.parent = null;
@@ -110,6 +112,21 @@ public class Bullet : MonoBehaviour
         float speed = _rigidbody2D.velocity.magnitude;
         Vector2 reflectDirection = Vector2.Reflect(direction, normal).normalized;
 
+        //if (_enemyManager)
+        //{
+        //    Transform enemyPos = _enemyManager.GetClosestWizzardEnemy(transform.position);
+        //    Transform enemyGhost = _enemyManager.GetClosestGhostEnemy(transform.position);
+
+        //    if (enemyPos)
+        //    {
+        //        reflectDirection = (enemyPos.position - transform.position).normalized;
+        //    }
+        //    else if (enemyGhost)
+        //    {
+        //        reflectDirection = (enemyGhost.position - transform.position).normalized;
+        //    }
+        //}
+
         transform.right = reflectDirection;
         _rigidbody2D.velocity = reflectDirection * speed;
         _sprite.color = Color.blue;
@@ -135,14 +152,33 @@ public class Bullet : MonoBehaviour
         //trampolin
         if (!other.gameObject.CompareTag("Wizard"))
         {
-            //trampolin
-            if (other.gameObject.CompareTag("Trampoline"))
-            {
-                Bounce(_rigidbody2D.velocity.normalized, other.contacts[0].normal);
-            }
 
-            //escenario
-            Impact(transform.position);
+            //enemies
+            if (other.gameObject.CompareTag("Wizard Enemy"))
+            {
+                //PlayerEnemy enemy = other.gameObject.GetComponent<PlayerEnemy>();
+                //if (enhanced)
+                //{
+                //    enemy.Die();
+                //}
+
+                Impact(transform.position);
+            }
+            else if (other.gameObject.CompareTag("Ghost Enemy"))
+            {
+                //GhostEnemy enemy = other.gameObject.GetComponent<GhostEnemy>();
+                //if (enhanced)
+                //{
+                //    enemy.Die();
+                //}
+
+                Impact(transform.position);
+            }
+            //scene
+            else
+            {
+                Impact(transform.position);
+            }
         }
     }
 

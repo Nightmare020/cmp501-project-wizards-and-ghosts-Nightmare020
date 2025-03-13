@@ -152,8 +152,13 @@ public class Bullet : MonoBehaviour
         //trampolin
         if (!other.gameObject.CompareTag("Wizard"))
         {
+            //trampolin
+            if (other.gameObject.CompareTag("Trampoline"))
+            {
+                Bounce(_rigidbody2D.velocity.normalized, other.contacts[0].normal);
+            }
 
-            //enemies
+            //enemigos
             if (other.gameObject.CompareTag("Wizard Enemy"))
             {
                 //PlayerEnemy enemy = other.gameObject.GetComponent<PlayerEnemy>();
@@ -174,7 +179,7 @@ public class Bullet : MonoBehaviour
 
                 Impact(transform.position);
             }
-            //scene
+            //escenario
             else
             {
                 Impact(transform.position);

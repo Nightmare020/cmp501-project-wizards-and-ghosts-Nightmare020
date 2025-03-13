@@ -967,7 +967,7 @@ MonoBehaviour:
   shooterSpriteTransform: {fileID: 9160190371023328138}
   ShootingEnabled: 1
   fastShootiingEnabled: 0
-  bulletTemplate: {fileID: 11891641706342740, guid: 2365bd82988355f44ba0d5e53ced2c80, type: 3}
+  bulletTemplate: {fileID: 11891641706342740, guid: b425946487e879446a258e3344c0caec, type: 3}
   _bulletPool: {fileID: 6319975481429812802}
 --- !u!61 &8349854867884038573
 BoxCollider2D:
@@ -2057,7 +2057,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61937170f786ef04cbc28843c749e580, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletTemplate: {fileID: 11891641706342740, guid: 2365bd82988355f44ba0d5e53ced2c80, type: 3}
+  bulletTemplate: {fileID: 11891641706342740, guid: b425946487e879446a258e3344c0caec, type: 3}
 --- !u!1 &4969643036268239791
 GameObject:
   m_ObjectHideFlags: 0
