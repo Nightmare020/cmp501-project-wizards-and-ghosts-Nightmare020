@@ -11,7 +11,7 @@ public class CameraFollow : MonoBehaviour
     public float originalOffset;
     public bool lockX, lockY;
 
-    private float margin = 0.1f;
+    //private float margin = 0.1f;
 
     //zoom
     [Range(0.125f, 10f)] [SerializeField] float zoomFactor = 1.0f;
