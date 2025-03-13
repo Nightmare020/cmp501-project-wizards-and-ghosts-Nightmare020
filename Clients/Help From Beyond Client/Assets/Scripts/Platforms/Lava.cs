@@ -12,7 +12,6 @@ public class Lava : MonoBehaviour
     {
         if (other.CompareTag("Wizard"))
         {
-            other.GetComponentInParent<ItemPickUp>().DropKey();
             WizardValues wizardValues = other.GetComponentInParent<WizardValues>();
             StartCoroutine(GetInLavaCoroutine(wizardValues));
         }
