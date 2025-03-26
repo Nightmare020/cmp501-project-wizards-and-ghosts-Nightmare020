@@ -38,10 +38,16 @@ public class PlayerManager : NetworkBehaviour
         cameraFollow = _camera.GetComponent<CameraFollow>();
         _rigidBody2D = GetComponent<Rigidbody2D>();
 
-        // Set the player's starting position
-        if (startingPoints != null && startingPoints.Count > 0)
+        // Get the PlayerStartingPoints component from the scene
+        PlayersStartingPoints startingPointsComponent = FindObjectOfType<PlayersStartingPoints>();
+        if (startingPointsComponent != null)
         {
-            transform.position = startingPoints[0].position; // Use the first starting point for now
+            List<Transform> startingPoints = startingPointsComponent.GetStartingPoints();
+            // Set the player's starting position
+            if (startingPoints != null && startingPoints.Count > 0)
+            {
+                transform.position = startingPoints[0].position; // Use the first starting point for now
+            }
         }
 
         // Initialize player state as Wizard
