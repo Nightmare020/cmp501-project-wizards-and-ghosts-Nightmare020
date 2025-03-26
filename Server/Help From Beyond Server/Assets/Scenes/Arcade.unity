@@ -25057,7 +25057,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1472166912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27964,7 +27964,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2079054488
 PrefabInstance:
@@ -28556,7 +28556,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2679770289363890867, guid: 6a44893ddf4fa1b4c80257f499a68938, type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2679770289363890867, guid: 6a44893ddf4fa1b4c80257f499a68938, type: 3}
       propertyPath: m_LocalPosition.x
@@ -29069,6 +29069,10 @@ PrefabInstance:
     - target: {fileID: 7210494552416533116, guid: 311beab0d5ca1864da93c72666d687e3, type: 3}
       propertyPath: m_LocalPosition.y
       value: -3.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7210494552611625379, guid: 311beab0d5ca1864da93c72666d687e3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7210494552611625389, guid: 311beab0d5ca1864da93c72666d687e3, type: 3}
       propertyPath: m_JoinBehavior

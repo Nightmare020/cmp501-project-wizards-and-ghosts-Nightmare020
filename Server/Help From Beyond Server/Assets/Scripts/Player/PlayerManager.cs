@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using Utils;
@@ -26,6 +27,7 @@ public class PlayerManager : NetworkBehaviour
     private ArcadeManager _arcadeManager;
     [NonSerialized] public SoundManager _soundManager;
     [SerializeField] private SpriteRenderer _spriteRendererWizard;
+    [SerializeField] private List<Transform> startingPoints;
 
     private void Start()
     {
@@ -35,6 +37,29 @@ public class PlayerManager : NetworkBehaviour
         cameraShake = _camera.GetComponent<CameraShake>();
         cameraFollow = _camera.GetComponent<CameraFollow>();
         _rigidBody2D = GetComponent<Rigidbody2D>();
+
+        // Set the player's starting position
+        if (startingPoints != null && startingPoints.Count > 0)
+        {
+            transform.position = startingPoints[0].position; // Use the first starting point for now
+        }
+
+        // Initialize player state as Wizard
+        SetCurrentState(PlayerState.Wizard);
+
+        // Enable control over the wizard player
+        //EnableControl();
+    }
+
+    private void EnableControl()
+    {
+        // Enable input and control for the wizard player
+        // Assuming you have an input manager or similar setup
+        MyInputManager inputManager = GetComponent<MyInputManager>();
+        if (inputManager != null)
+        {
+            inputManager.SetInputMap(CurrentInputState.Wizard);
+        }
     }
 
     public PlayerManager GetOtherPlayer()
@@ -91,6 +116,7 @@ public class PlayerManager : NetworkBehaviour
                 wizard.SetActive(false);
                 ghost.SetActive(true);
                 dead.SetActive(false);
+                cameraFollow.m_Target = transform;
                 break;
             case PlayerState.Dead:
                 isDead = true;

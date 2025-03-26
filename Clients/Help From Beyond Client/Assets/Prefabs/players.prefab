@@ -528,7 +528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d0d1ff1ccebfcd4dab2210d1eb4a591, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerManager: {fileID: 1334003489671196893}
+  _playerManager: {fileID: 0}
   JumpTutorial: {fileID: 375440991796546543}
   min: -2
   max: -1
@@ -780,7 +780,7 @@ GameObject:
   - component: {fileID: 7873835340780179717}
   - component: {fileID: 5072216604304580687}
   m_Layer: 5
-  m_Name: Reconnect image
+  m_Name: Player disconnected image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1008,7 +1008,7 @@ GameObject:
   - component: {fileID: 2597758119109256576}
   - component: {fileID: 2597758119109256581}
   - component: {fileID: 6154273773458866488}
-  - component: {fileID: 1334003489671196893}
+  - component: {fileID: 8530181566562538980}
   - component: {fileID: 7231328292045201685}
   - component: {fileID: 8121545236976703992}
   - component: {fileID: 1971785144229129622}
@@ -1182,7 +1182,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc02bf798bf45341a1ec660b7f8a7cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1334003489671196893
+--- !u!114 &8530181566562538980
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1538,7 +1538,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3de8aae9f684ba43bac239929ba6cca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerManager: {fileID: 1334003489671196893}
+  _playerManager: {fileID: 0}
   ground:
     serializedVersion: 2
     m_Bits: 8
@@ -2444,7 +2444,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: RECONNECT THE CONTROLLER
+  m_text: OTHER PLAYER GOT DISCONNECTED
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 47a0c975f429ca44199ac513215827ce, type: 2}
   m_sharedMaterial: {fileID: -3594940514892261028, guid: 47a0c975f429ca44199ac513215827ce, type: 2}
@@ -2527,7 +2527,7 @@ GameObject:
   - component: {fileID: 5042606513168994684}
   - component: {fileID: 386299360627962346}
   m_Layer: 5
-  m_Name: Reconnect controller canvas
+  m_Name: Other player disconnected canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2831,7 +2831,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   distance: 2
-  _playerManager: {fileID: 1334003489671196893}
+  _playerManager: {fileID: 0}
   _otherPlayer: {fileID: 0}
 --- !u!1 &6900869239556015486
 GameObject:
