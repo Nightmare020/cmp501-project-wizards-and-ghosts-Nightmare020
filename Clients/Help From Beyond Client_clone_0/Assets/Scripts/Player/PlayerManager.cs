@@ -29,7 +29,7 @@ public class PlayerManager : NetworkBehaviour
     [SerializeField] private SpriteRenderer _spriteRendererWizard;
     [SerializeField] private List<Transform> startingPoints;
 
-    private void Start()
+    private void Awake()
     {
         _soundManager = GetComponentInParent<SoundManager>();
         _arcadeManager = FindObjectOfType<ArcadeManager>();
@@ -37,18 +37,23 @@ public class PlayerManager : NetworkBehaviour
         cameraShake = _camera.GetComponent<CameraShake>();
         cameraFollow = _camera.GetComponent<CameraFollow>();
         _rigidBody2D = GetComponent<Rigidbody2D>();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
 
         // Get the PlayerStartingPoints component from the scene
-        PlayersStartingPoints startingPointsComponent = FindObjectOfType<PlayersStartingPoints>();
-        if (startingPointsComponent != null)
-        {
-            List<Transform> startingPoints = startingPointsComponent.GetStartingPoints();
-            // Set the player's starting position
-            if (startingPoints != null && startingPoints.Count > 0)
-            {
-                transform.position = startingPoints[0].position; // Use the first starting point for now
-            }
-        }
+        //PlayersStartingPoints startingPointsComponent = FindObjectOfType<PlayersStartingPoints>();
+        //if (startingPointsComponent != null)
+        //{
+        //    List<Transform> startingPoints = startingPointsComponent.GetStartingPoints();
+        //    // Set the player's starting position
+        //    if (startingPoints != null && startingPoints.Count > 0)
+        //    {
+        //        transform.position = startingPoints[0].position; // Use the first starting point for now
+        //    }
+        //}
 
         // Initialize player state as Wizard
         SetCurrentState(PlayerState.Wizard);

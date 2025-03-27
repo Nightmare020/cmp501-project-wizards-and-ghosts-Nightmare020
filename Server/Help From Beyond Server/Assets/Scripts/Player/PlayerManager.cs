@@ -29,7 +29,7 @@ public class PlayerManager : NetworkBehaviour
     [SerializeField] private SpriteRenderer _spriteRendererWizard;
     [SerializeField] private List<Transform> startingPoints;
 
-    private void Start()
+    private void Awake()
     {
         _soundManager = GetComponentInParent<SoundManager>();
         _arcadeManager = FindObjectOfType<ArcadeManager>();
@@ -37,6 +37,11 @@ public class PlayerManager : NetworkBehaviour
         cameraShake = _camera.GetComponent<CameraShake>();
         cameraFollow = _camera.GetComponent<CameraFollow>();
         _rigidBody2D = GetComponent<Rigidbody2D>();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
 
         // Get the PlayerStartingPoints component from the scene
         //PlayersStartingPoints startingPointsComponent = FindObjectOfType<PlayersStartingPoints>();
