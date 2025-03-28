@@ -58,6 +58,9 @@ public class WizardMovement : NetworkBehaviour
         cachedInput = _inputs.WizardMovement();
         SendMovementInputServerRpc(cachedInput);
 
+        // Camera look up/down offset
+        HandleCameraLookOffset(cachedInput);
+
         // Jump
         if (_inputs.WizardJumpPerformedThisFrame())
         {
@@ -68,6 +71,22 @@ public class WizardMovement : NetworkBehaviour
         if (_inputs.WizardDashPerformedThisFrame())
         {
             SendDashRequestServerRpc();
+        }
+    }
+
+    private void HandleCameraLookOffset(Vector2 input)
+    {
+        if (input.y > 0.9f)
+        {
+            _wizardValues._playerManager.cameraFollow.UpLookOffset();
+        }
+        else if (input.y < -0.9f)
+        {
+            _wizardValues._playerManager.cameraFollow.DownLookOffset();
+        }
+        else
+        {
+            _wizardValues._playerManager.cameraFollow.ResetOffset();
         }
     }
 
