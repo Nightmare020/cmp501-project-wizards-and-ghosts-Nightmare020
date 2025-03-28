@@ -164,7 +164,7 @@ public partial class @CoopInputMap: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""ad271ddf-cdb4-4e87-9aea-c760bbf3641d"",
-                    ""path"": ""<Keyboard>/leftShift"",
+                    ""path"": ""<Keyboard>/tab"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

@@ -12466,6 +12466,51 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: faff8d7a2fea3614183e94bd4ea13ab8, type: 3}
+--- !u!1 &680731094
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 680731096}
+  - component: {fileID: 680731095}
+  m_Layer: 0
+  m_Name: PlayerSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &680731095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680731094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7880972db79a4754f9730819dfbfd1d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerPrefab: {fileID: 2597758119109256577, guid: 0a4216f149961aa4da3bc94d3291c8cb, type: 3}
+--- !u!4 &680731096
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680731094}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -23.064093, y: -3.188869, z: -102.60782}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &682687344
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19329,7 +19374,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1169864807}
-    PlayerPrefab: {fileID: 2597758119109256577, guid: 0a4216f149961aa4da3bc94d3291c8cb, type: 3}
+    PlayerPrefab: {fileID: 0}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: d010a2d29d217214eb4c82ff72918dea, type: 2}
@@ -19361,7 +19406,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29c65fe500ffd544eb8f94f4e9d820dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  runAsServer: 0
   serverIP: 127.0.0.1
   serverPort: 7777
 --- !u!1001 &1183532538
