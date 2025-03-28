@@ -292,7 +292,7 @@ public class WizardMovement : NetworkBehaviour
     private void SetFacingClientRpc(int direction)
     {
         // Server already handled
-        if (IsServer) return;
+        if (IsServer || _wizardValues == null || _wizardValues.animationManager == null) return;
 
         _wizardValues.facingDirection = direction;
 
@@ -308,7 +308,8 @@ public class WizardMovement : NetworkBehaviour
     private void UpdateAnimationClientRpc(float verticalVel, float horizontalVel, bool grounded)
     {
         // Already handled in server
-        if (IsServer) return;
+        if (IsServer || _wizardValues == null || _wizardValues.animationManager == null) 
+            return;
 
         var anim = _wizardValues.animationManager;
 
@@ -335,7 +336,7 @@ public class WizardMovement : NetworkBehaviour
     private void SetDashAnimationClientRpc(bool isDashing)
     {
         // Already handled in server
-        if (IsServer) return;
+        if (IsServer || _wizardValues == null || _wizardValues.animationManager == null) return;
 
         _wizardValues.animationManager.SetDashing(isDashing);
     }
