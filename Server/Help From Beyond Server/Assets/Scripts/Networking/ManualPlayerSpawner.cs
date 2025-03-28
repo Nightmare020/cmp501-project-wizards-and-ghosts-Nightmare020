@@ -47,8 +47,7 @@ public class ManualPlayerSpawner : MonoBehaviour
 
     private void SpawnPlayer(ulong clientId)
     {
-        var spawnPosition = new Vector3(0, 0, 0);
-        var playerInstance = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+        var playerInstance = Instantiate(playerPrefab);
         playerInstance.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
     }
 }
