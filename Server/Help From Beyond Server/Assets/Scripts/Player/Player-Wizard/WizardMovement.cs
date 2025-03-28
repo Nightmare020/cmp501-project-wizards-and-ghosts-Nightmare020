@@ -180,6 +180,7 @@ public class WizardMovement : NetworkBehaviour
         _wizardValues.rigidBody.AddForce(dashForce, ForceMode2D.Impulse);
 
         _wizardValues.animationManager.SetDashing(true);
+        SetDashAnimationClientRpc(true);
         StartCoroutine(SlowTheDash());
     }
 
@@ -188,6 +189,7 @@ public class WizardMovement : NetworkBehaviour
         float dragOldValue = _wizardValues.rigidBody.drag;
         yield return new WaitForSeconds(0.3f);
         _wizardValues.animationManager.SetDashing(false);
+        SetDashAnimationClientRpc(false);
 
         if (_wizardValues.IsGrounded())
         {
@@ -213,6 +215,9 @@ public class WizardMovement : NetworkBehaviour
             _wizardValues.WizardSpriteRenderer.flipX = false;
             _wizardValues.collider2D.offset =
                 new Vector2(Mathf.Abs(_wizardValues.collider2D.offset.x), _wizardValues.collider2D.offset.y);
+
+            // Set the direction of the player to the right
+            SetFacingClientRpc(1);
         }
         else if (direction.x < 0)
         {
@@ -220,6 +225,9 @@ public class WizardMovement : NetworkBehaviour
             _wizardValues.WizardSpriteRenderer.flipX = true;
             _wizardValues.collider2D.offset =
                 new Vector2(-Math.Abs(_wizardValues.collider2D.offset.x), _wizardValues.collider2D.offset.y);
+
+            // Set the direction of the player to the left
+            SetFacingClientRpc(-1);
         }
     }
 
@@ -252,15 +260,63 @@ public class WizardMovement : NetworkBehaviour
             _wizardValues.animationManager.SetJumping(false);
             _wizardValues.animationManager.SetSpeed(horizontalVelocity);
             _wizardValues.animationManager.SetJoystickMultiplier(Mathf.Max(1f, horizontalVelocity));
-
-            //if (horizontalVelocity < 0.1f)
-            //{
-            //    _wizardValues.animationManager.SetJoystickMultiplier(1);
-            //}
-            //else
-            //{
-            //    _wizardValues.animationManager.SetJoystickMultiplier(horizontalVelocity);
-            //}
         }
+
+        UpdateAnimationClientRpc(verticalVelocity, horizontalVelocity, _wizardValues.IsGrounded());
+    }
+
+    // ================================
+    // CLIENT: Server Replication
+    // ================================
+    [ClientRpc]
+    private void SetFacingClientRpc(int direction)
+    {
+        // Server already handled
+        if (IsServer) return;
+
+        _wizardValues.facingDirection = direction;
+
+        bool flip = direction < 0;
+        _wizardValues.WizardSpriteRenderer.flipX = flip;
+
+        Vector2 offset = _wizardValues.collider2D.offset;
+        offset.x = Mathf.Abs(offset.x) * (flip ? -1 : 1);
+        _wizardValues.collider2D.offset = offset;
+    }
+
+    [ClientRpc]
+    private void UpdateAnimationClientRpc(float verticalVel, float horizontalVel, bool grounded)
+    {
+        // Already handled in server
+        if (IsServer) return;
+
+        var anim = _wizardValues.animationManager;
+
+        if (verticalVel < -0.1f)
+        {
+            anim.SetFalling(true);
+            anim.SetJumping(false);
+        }
+        else if (verticalVel > 0.1f)
+        {
+            anim.SetFalling(false);
+            anim.SetJumping(true);
+        }
+        else if (grounded)
+        {
+            anim.SetFalling(false);
+            anim.SetJumping(false);
+            anim.SetSpeed(horizontalVel);
+            anim.SetJoystickMultiplier(Mathf.Max(1f, horizontalVel));
+        }
+    }
+
+    [ClientRpc]
+    private void SetDashAnimationClientRpc(bool isDashing)
+    {
+        // Already handled in server
+        if (IsServer) return;
+
+        _wizardValues.animationManager.SetDashing(isDashing);
     }
 }
