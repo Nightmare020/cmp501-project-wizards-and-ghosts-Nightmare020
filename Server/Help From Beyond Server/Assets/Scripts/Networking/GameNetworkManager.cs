@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class GameNetworkManager : MonoBehaviour
 {
-    public bool runAsServer = true;
-
     public string serverIP = "127.0.0.1"; // Local server for testing
     public ushort serverPort = 7777; // Default Netcode port
 

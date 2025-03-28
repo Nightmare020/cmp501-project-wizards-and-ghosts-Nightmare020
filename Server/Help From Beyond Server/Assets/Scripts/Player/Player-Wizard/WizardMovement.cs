@@ -22,6 +22,7 @@ public class WizardMovement : NetworkBehaviour
     //dash timer
     private MyStopwatch dashTimer;
 
+    private Vector2 cachedInput;
 
     private void Start()
     {
@@ -34,130 +35,168 @@ public class WizardMovement : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        if (jumping && _inputs.WizardJumpPressed() && _wizardValues.rigidBody.velocity.y > 0)
+        if (!IsServer) return;
+
+        HandleServerMovement();
+        UpdateAnimationValues(); // Server updates the animations
+    }
+
+    private void Update()
+    {
+        if (!IsOwner) return;
+
+        HandleClienInput();
+    }
+
+    // ================================
+    // CLIENT: Input Collection
+    // ================================
+    private void HandleClienInput()
+    {
+        // Movement input
+        cachedInput = _inputs.WizardMovement();
+        SendMovementInputServerRpc(cachedInput);
+
+        // Jump
+        if (_inputs.WizardJumpPerformedThisFrame())
         {
-            _wizardValues.rigidBody.AddForce(Vector2.up * _wizardValues.jumpOnAirForce);
-        }
-        else
-        {
-            jumping = false;
+            SendJumpRequestServerRpc();
         }
 
-        //move on ground
-        Vector2 moveDirection = MoveDirectionVectorNormalized();
+        // Dash
+        if (_inputs.WizardDashPerformedThisFrame())
+        {
+            SendDashRequestServerRpc();
+        }
+    }
 
-        //reset the dash
+    // ================================
+    // SERVER RPCs (Called by Owner Client)
+    // ================================
+    [ServerRpc]
+    private void SendMovementInputServerRpc(Vector2 input)
+    {
+        cachedInput = input;
+    }
+
+    [ServerRpc]
+    private void SendJumpRequestServerRpc()
+    {
+        TryJump();
+    }
+
+    [ServerRpc]
+    private void SendDashRequestServerRpc()
+    {
+        TryDash();
+    }
+
+    // ================================
+    // SERVER: Movement + Logic
+    // ================================
+    private void HandleServerMovement()
+    {
+        Vector2 direction = cachedInput.normalized;
+        _gamePadAddedSpeed = direction.magnitude;
+        if (direction == Vector2.zero) return;
+
+        float moveSpeed = _wizardValues.IsGrounded() ? _wizardValues.moveSpeed
+            : _wizardValues.rigidBody.velocity.y > 0 ? _wizardValues.moveSpeed / 2 :
+        _wizardValues.moveSpeed / 4;
+
+        direction *= _gamePadAddedSpeed;
+        Vector2 force = direction * moveSpeed - _wizardValues.rigidBody.velocity;
+        _wizardValues.rigidBody.AddForce(force);
+
+        UpdateFacingDirection(direction);
+
+        // Dash cooldown
         if (_wizardValues.IsGrounded() && dashPerformed && dashTimer.GetElapsedSeconds() > _wizardValues.dashCooldown)
         {
             ResetDash();
         }
 
-        //reset the double jump
+        // Double jump reset
         if (_wizardValues.IsGrounded() && _wizardValues.doubleJumpPerformed)
         {
             ResetDoubleJump();
         }
-
-        //movement
-        if (MoveDirectionVectorNormalized() != Vector2.zero)
-        {
-            //move speed on gruound
-
-            if (_wizardValues.IsGrounded())
-            {
-                speed = _wizardValues.moveSpeed;
-            }
-            else if (_wizardValues.rigidBody.velocity.y > 0)
-            {
-                speed = _wizardValues.moveSpeed / 2;
-            }
-
-            //move speed on air
-            else
-            {
-                speed = _wizardValues.moveSpeed / 4;
-            }
-
-            moveDirection *= _gamePadAddedSpeed;
-            _wizardValues.rigidBody.AddForce(moveDirection * speed -
-                                             _wizardValues.rigidBody.velocity);
-        }
-
-
-        UpdateAnimationValues();
     }
 
-    private void Update()
+    private void TryJump()
     {
-        //jump
-        if (_inputs.WizardJumpPerformedThisFrame() && _wizardValues.IsGrounded())
+        if (_wizardValues.IsGrounded())
         {
             Jump();
             _wizardValues._playerManager._soundManager.PlayJumpSound();
         }
-
-        //dash
-        if (_inputs.WizardDashPerformedThisFrame() && !dashPerformed)
-        {
-            Dash();
-        }
-
-        //double jump
-        PlayerManager otherPlayer = _wizardValues._playerManager.GetOtherPlayer();
-        if (_inputs.WizardJumpPerformedThisFrame() && !_wizardValues.IsGrounded() && otherPlayer)
-        {
-            float dist = Vector3.Distance(otherPlayer.transform.position, transform.position);
-            if (!_wizardValues.doubleJumpPerformed && dist < _wizardValues.minDistanceToGhost)
-            {
-                _wizardValues.doubleJumpPerformed = true;
-                _wizardValues.rigidBody.velocity *= new Vector2(1, 0);
-                ResetDash();
-                Jump();
-                _wizardValues._playerManager._soundManager.PlayDoubleJumpSound();
-            }
-        }
-    }
-
-
-    private Vector2 MoveDirectionVectorNormalized()
-    {
-        Vector2 direction = _inputs.WizardMovement();
-        _gamePadAddedSpeed = direction.magnitude;
-        if (direction.y > 0.9f)
-        {
-            _wizardValues._playerManager.cameraFollow.UpLookOffset();
-        }
-        else if (direction.y < -0.9f)
-        {
-            _wizardValues._playerManager.cameraFollow.DownLookOffset();
-        }
         else
         {
-            _wizardValues._playerManager.cameraFollow.ResetOffset();
-            if (direction.x > 0)
-            {
-                _wizardValues.facingDirection = 1;
-                _wizardValues.WizardSpriteRenderer.flipX = false;
-                _wizardValues.collider2D.offset =
-                    new Vector2(Math.Abs(_wizardValues.collider2D.offset.x), _wizardValues.collider2D.offset.y);
+            PlayerManager other = _wizardValues._playerManager.GetOtherPlayer();
 
-                return new Vector2(1, 0);
-            }
-
-            if (direction.x < 0)
+            if (other != null && !_wizardValues.doubleJumpPerformed)
             {
-                _wizardValues.facingDirection = -1;
-                _wizardValues.WizardSpriteRenderer.flipX = true;
-                _wizardValues.collider2D.offset =
-                    new Vector2(-Math.Abs(_wizardValues.collider2D.offset.x), _wizardValues.collider2D.offset.y);
-                return new Vector2(-1, 0);
+                float dist = Vector3.Distance(other.transform.position, transform.position);
+                if (dist < _wizardValues.minDistanceToGhost)
+                {
+                    _wizardValues.doubleJumpPerformed = true;
+                    _wizardValues.rigidBody.velocity *= new Vector2(1, 0);
+                    ResetDash();
+                    Jump();
+                    _wizardValues._playerManager._soundManager.PlayDoubleJumpSound();
+                }
             }
         }
-
-
-        return Vector2.zero;
     }
 
+    private void Jump()
+    {
+        _wizardValues.rigidBody.velocity *= new Vector2(1, 0);
+
+        float force = cachedInput == Vector2.zero
+            ? _wizardValues.jumpForce / 1.25f
+            : _wizardValues.jumpForce;
+
+        _wizardValues.rigidBody.AddForce(Vector2.up * force, ForceMode2D.Impulse);
+        jumping = true;
+    }
+
+    private void ResetDoubleJump()
+    {
+        _wizardValues.doubleJumpPerformed = false;
+    }
+
+    private void TryDash()
+    {
+        if (dashPerformed || !_wizardValues.IsGrounded()) return;
+
+        _cameraShake.Shake(0.1f, 0.1f);
+
+        _wizardValues.rigidBody.velocity *= new Vector2(0, 1);
+        dashTimer.Restart();
+        dashPerformed = true;
+
+        Vector2 dashForce = new Vector2(_wizardValues.facingDirection, 0) * _wizardValues.dashForce;
+        _wizardValues.rigidBody.AddForce(dashForce, ForceMode2D.Impulse);
+
+        _wizardValues.animationManager.SetDashing(true);
+        StartCoroutine(SlowTheDash());
+    }
+
+    IEnumerator SlowTheDash()
+    {
+        float dragOldValue = _wizardValues.rigidBody.drag;
+        yield return new WaitForSeconds(0.3f);
+        _wizardValues.animationManager.SetDashing(false);
+
+        if (_wizardValues.IsGrounded())
+        {
+            _wizardValues.rigidBody.drag = 8f;
+        }
+
+        yield return new WaitForSeconds(0.1f);
+        _wizardValues.rigidBody.drag = dragOldValue;
+    }
 
     private void ResetDash()
     {
@@ -166,85 +205,62 @@ public class WizardMovement : NetworkBehaviour
         dashTimer.ResetStopwatch();
     }
 
-    private void ResetDoubleJump()
+    private void UpdateFacingDirection(Vector2 direction)
     {
-        _wizardValues.doubleJumpPerformed = false;
-    }
-
-    private void Jump()
-    {
-        _wizardValues.rigidBody.velocity *= new Vector2(1, 0);
-        if (MoveDirectionVectorNormalized() == Vector2.zero)
+        if (direction.x > 0)
         {
-            _wizardValues.rigidBody.AddForce(Vector2.up * _wizardValues.jumpForce / 1.25f, ForceMode2D.Impulse);
+            _wizardValues.facingDirection = 1;
+            _wizardValues.WizardSpriteRenderer.flipX = false;
+            _wizardValues.collider2D.offset =
+                new Vector2(Mathf.Abs(_wizardValues.collider2D.offset.x), _wizardValues.collider2D.offset.y);
         }
-        else
+        else if (direction.x < 0)
         {
-            _wizardValues.rigidBody.AddForce(Vector2.up * _wizardValues.jumpForce, ForceMode2D.Impulse);
+            _wizardValues.facingDirection = -1;
+            _wizardValues.WizardSpriteRenderer.flipX = true;
+            _wizardValues.collider2D.offset =
+                new Vector2(-Math.Abs(_wizardValues.collider2D.offset.x), _wizardValues.collider2D.offset.y);
         }
-
-        jumping = true;
     }
 
-    private void Dash()
-    {
-        _cameraShake.Shake(0.1f, 0.1f);
-
-        _wizardValues.rigidBody.velocity *= new Vector2(0, 1);
-        dashTimer.Restart();
-        dashPerformed = true;
-        _wizardValues.rigidBody.AddForce(new Vector2(_wizardValues.facingDirection, 0) * _wizardValues.dashForce,
-            ForceMode2D.Impulse);
-        _wizardValues.animationManager.SetDashing(true);
-        StartCoroutine(SlowTheDash());
-    }
-
-
-    IEnumerator SlowTheDash()
-    {
-        float dragOldValue = _wizardValues.rigidBody.drag;
-        yield return new WaitForSeconds(0.3f);
-        _wizardValues.animationManager.SetDashing(false);
-        if (_wizardValues.IsGrounded())
-        {
-            _wizardValues.rigidBody.drag = 8f;
-            _wizardValues.animationManager.SetDashing(false);
-        }
-
-        yield return new WaitForSeconds(0.1f);
-        _wizardValues.rigidBody.drag = dragOldValue;
-    }
-
+    // ================================
+    // Shared: Animation
+    // ================================
     private void UpdateAnimationValues()
     {
         float verticalVelocity = _wizardValues.rigidBody.velocity.y;
         float horizontalVelocity = Math.Abs(_wizardValues.rigidBody.velocity.x);
-        //falling
+
+        // Falling
         if (verticalVelocity < -0.1f)
         {
             _wizardValues.animationManager.SetFalling(true);
             _wizardValues.animationManager.SetJumping(false);
         }
-        //jump
+
+        // Jump
         else if (verticalVelocity > 0.1f)
         {
             _wizardValues.animationManager.SetFalling(false);
             _wizardValues.animationManager.SetJumping(true);
         }
-        //speed
+
+        //Speed
         else if (_wizardValues.IsGrounded())
         {
             _wizardValues.animationManager.SetFalling(false);
             _wizardValues.animationManager.SetJumping(false);
             _wizardValues.animationManager.SetSpeed(horizontalVelocity);
-            if (horizontalVelocity < 0.1f)
-            {
-                _wizardValues.animationManager.SetJoystickMultiplier(1);
-            }
-            else
-            {
-                _wizardValues.animationManager.SetJoystickMultiplier(horizontalVelocity);
-            }
+            _wizardValues.animationManager.SetJoystickMultiplier(Mathf.Max(1f, horizontalVelocity));
+
+            //if (horizontalVelocity < 0.1f)
+            //{
+            //    _wizardValues.animationManager.SetJoystickMultiplier(1);
+            //}
+            //else
+            //{
+            //    _wizardValues.animationManager.SetJoystickMultiplier(horizontalVelocity);
+            //}
         }
     }
 }
