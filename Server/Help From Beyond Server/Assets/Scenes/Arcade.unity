@@ -19627,6 +19627,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3537775897489853637, guid: faff8d7a2fea3614183e94bd4ea13ab8, type: 3}
   m_PrefabInstance: {fileID: 1249964780}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1266116902 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9213515752582220267, guid: d15fe188dd76cb845aedbba733af89a8, type: 3}
+  m_PrefabInstance: {fileID: 1806445996}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1296546848
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26989,6 +26994,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingPoints:
   - {fileID: 1806445998}
+  - {fileID: 1266116902}
 --- !u!1001 &1825435341
 PrefabInstance:
   m_ObjectHideFlags: 0

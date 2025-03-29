@@ -1,8 +1,8 @@
 using System;
-
+using Unity.Netcode;
 using UnityEngine;
 
-public class WizardShooter : MonoBehaviour
+public class WizardShooter : NetworkBehaviour
 {
     // Start is called before the first frame update
     public float distance, speed;
@@ -11,7 +11,6 @@ public class WizardShooter : MonoBehaviour
     private SpriteRenderer shooterSprite;
     private MyInputManager _inputs;
     public bool ShootingEnabled = true;
-    public bool fastShootiingEnabled = false;
     private bool displayed = false;
     [NonSerialized] public Bullet _bullet;
     [SerializeField] private GameObject bulletTemplate;
@@ -33,6 +32,8 @@ public class WizardShooter : MonoBehaviour
 
     private void Update()
     {
+        if (!IsOwner || !ShootingEnabled) return;
+
         if (ShootingEnabled)
         {
             Vector2 aim = _inputs.WizardAim();
@@ -48,23 +49,11 @@ public class WizardShooter : MonoBehaviour
 
             if (displayed && _inputs.WizardShootPerformedThisFrame())
             {
-                if (fastShootiingEnabled)
-                {
-                    //shoot
-                    Ray ray1 = new Ray(transform.position, aim);
-                    Ray ray2 = new Ray(ray1.GetPoint(distance), ray1.direction);
-                    _bulletPool.GetBullet().Shoot(ray2, speed);
-                }
-                else
-                {
-                    if (!_bullet.isBeingUsed)
-                    {
-                        //shoot
-                        Ray ray1 = new Ray(transform.position, aim);
-                        Ray ray2 = new Ray(ray1.GetPoint(distance), ray1.direction);
-                        _bullet.Shoot(ray2, speed);
-                    }
-                }
+                // Shoot
+                Vector3 origin = shooterSpriteTransform.position;
+                Vector2 dir = (origin - transform.position).normalized;
+
+                ShootServerRpc(origin, dir);
             }
         }
     }
@@ -83,5 +72,22 @@ public class WizardShooter : MonoBehaviour
     {
         displayed = false;
         shooterSprite.enabled = false;
+    }
+
+    [ServerRpc]
+    private void ShootServerRpc(Vector2 origin, Vector2 direction)
+    {
+        GameObject bulletObj = Instantiate(bulletTemplate, origin, Quaternion.identity);
+        Bullet bullet = bulletObj.GetComponent<Bullet>();
+
+        // Set rotation and movement before spawning
+        bullet.transform.right = direction;
+        bullet.transform.position = origin;
+
+        // Immediately enable and launch the bullet
+        bullet.EnableBullet();
+        bullet.Shoot(new Ray(origin, direction), speed);
+
+        bulletObj.GetComponent<NetworkObject>().Spawn();
     }
 }

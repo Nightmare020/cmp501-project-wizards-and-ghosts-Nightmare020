@@ -19030,6 +19030,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingPoints:
   - {fileID: 1057390439}
+  - {fileID: 1917316610}
 --- !u!1001 &1120557504
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27515,6 +27516,11 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!4 &1917316610 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9213515752582220267, guid: d15fe188dd76cb845aedbba733af89a8, type: 3}
+  m_PrefabInstance: {fileID: 1014103615}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1923434753
 PrefabInstance:
   m_ObjectHideFlags: 0
