@@ -16,18 +16,14 @@ public class WizardShooter : NetworkBehaviour
     [SerializeField] private GameObject bulletTemplate;
     [SerializeField] private BulletPool _bulletPool;
 
+    private Vector2 lastAimDirection;
 
     void Start()
     {
         _inputs = GetComponentInParent<MyInputManager>();
         shooterSprite = shooterSpriteTransform.GetComponentInChildren<SpriteRenderer>();
-        _bullet = Instantiate(bulletTemplate, null).GetComponent<Bullet>();
-        _bullet.DisableBullet();
-    }
-
-    // Update is called once per frame
-    void FixedUpdate()
-    {
+        //_bullet = Instantiate(bulletTemplate, null).GetComponent<Bullet>();
+        //_bullet.DisableBullet();
     }
 
     private void Update()
@@ -37,7 +33,8 @@ public class WizardShooter : NetworkBehaviour
         Vector2 aim = _inputs.WizardAim();
         if (aim != Vector2.zero)
         {
-            SetSooterPosition(aim);
+            lastAimDirection = aim.normalized;
+            SetSooterPosition(lastAimDirection);
         }
         else
         {
@@ -82,8 +79,9 @@ public class WizardShooter : NetworkBehaviour
         bullet.transform.position = origin;
 
         // Immediately enable and launch the bullet
+        bullet.transform.right = direction;
         bullet.EnableBullet();
-        bullet.Shoot(new Ray(origin, direction), speed);
+        bullet.Launch(direction.normalized * speed);
 
         bulletObj.GetComponent<NetworkObject>().Spawn();
     }

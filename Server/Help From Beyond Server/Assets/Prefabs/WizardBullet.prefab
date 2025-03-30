@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7982579627907804833}
   - component: {fileID: 573181184905199391}
   - component: {fileID: 8847937426576653450}
+  - component: {fileID: 2902245524992645604}
   m_Layer: 6
   m_Name: WizardBullet
   m_TagString: Untagged
@@ -182,6 +183,22 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2902245524992645604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 11891641706342740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 951099334
+  AlwaysReplicateAsRoot: 0
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &1224758515980231856
 GameObject:
   m_ObjectHideFlags: 0

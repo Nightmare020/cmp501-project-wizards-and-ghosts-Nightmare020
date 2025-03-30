@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class Bullet : NetworkBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] private Rigidbody2D _rigidbody2D;
@@ -206,6 +207,6 @@ public class Bullet : MonoBehaviour
 
         isBeingUsed = true;
         origin = transform.position;
-        _cameraShake.Shake(0.1f, 0.1f);
+        //_cameraShake.Shake(0.1f, 0.1f);
     }
 }

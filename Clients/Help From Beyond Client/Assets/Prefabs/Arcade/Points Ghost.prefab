@@ -97,12 +97,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4454575610045698272, guid: 14095e3fdf1b8b245b58758ee3479ef6, type: 3}
       propertyPath: m_SortingLayerID
-      value: 23226069
+      value: 634630641
       objectReference: {fileID: 0}
     - target: {fileID: 4454575610045698272, guid: 14095e3fdf1b8b245b58758ee3479ef6, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 6c1509cfbf2f6c1429e936438c9f7875, type: 2}
+      objectReference: {fileID: 2100000, guid: 47e9def5d31f5684ea5862fccd1051c2, type: 2}
     - target: {fileID: 4963592128163941677, guid: 14095e3fdf1b8b245b58758ee3479ef6, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 

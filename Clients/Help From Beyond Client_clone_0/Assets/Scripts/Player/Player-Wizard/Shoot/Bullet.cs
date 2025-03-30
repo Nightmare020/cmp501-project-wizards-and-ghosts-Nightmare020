@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class Bullet : NetworkBehaviour
 {
     // Start is called before the first frame update
     [SerializeField] private Rigidbody2D _rigidbody2D;
@@ -190,7 +191,7 @@ public class Bullet : MonoBehaviour
         }
     }
 
-    public void Launch (Vector2 velocity)
+    public void Launch(Vector2 velocity)
     {
         _rigidbody2D.velocity = velocity;
         _audioSource.clip = shootSound;
