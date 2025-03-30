@@ -11,8 +11,10 @@ public class SelectionWizardGhost : MonoBehaviour
 {
     // Start is called before the first frame update
     private List<MyInputManager> players;
+    private MyInputManager player;
     private List<int> playerRolPosition;
     private List<PlayerManager> playerManagers;
+    private PlayerManager playerManager;
     private CanvasGroup _canvasGroup;
     private bool otherPlayerFound;
     private Coroutine searchPlayerTextCoroutine;
@@ -37,18 +39,33 @@ public class SelectionWizardGhost : MonoBehaviour
 
     private void Awake()
     {
-        players = new List<MyInputManager>();
-        playerRolPosition = new List<int>();
-        playerManagers = new List<PlayerManager>();
-        _canvasGroup = GetComponent<CanvasGroup>();
-        originalImageX = playerImages[0].transform.position.x;
-        UpdateAcceptImage();
+        //players = new List<MyInputManager>();
+        //playerRolPosition = new List<int>();
+        //playerManagers = new List<PlayerManager>();
+        //_canvasGroup = GetComponent<CanvasGroup>();
+        //originalImageX = playerImages[0].transform.position.x;
+        //UpdateAcceptImage();
     }
 
     // Start is called before the first frame update
     private void Start()
     {
-        _matchmakingClient = MatchmakingClient.Instance;
+        //_matchmakingClient = MatchmakingClient.Instance;
+
+        // Initialize the player and playerManager objects
+        player = FindObjectOfType<MyInputManager>();
+        playerManager = player.GetComponent<PlayerManager>();
+
+        if (player != null && playerManager != null)
+        {
+            Debug.Log("Setting player as Wizard");
+            player.SetInputMap(CurrentInputState.Wizard);
+            playerManager.SetCurrentState(PlayerState.Wizard);
+        }
+        else
+        {
+            Debug.LogError("Player or PlayerManager not found");
+        }
     }
 
     public void ShowUI()

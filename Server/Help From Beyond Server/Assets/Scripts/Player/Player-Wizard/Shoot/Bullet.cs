@@ -194,4 +194,18 @@ public class Bullet : MonoBehaviour
             child.gameObject.layer = layer;
         }
     }
+
+    public void Launch(Vector2 velocity)
+    {
+        _rigidbody2D.velocity = velocity;
+        _audioSource.clip = shootSound;
+        _audioSource.Play();
+
+        shootEffect.position = transform.position + (Vector3)(velocity.normalized * 0.5f);
+        shootAnimator.SetTrigger("Shoot");
+
+        isBeingUsed = true;
+        origin = transform.position;
+        _cameraShake.Shake(0.1f, 0.1f);
+    }
 }

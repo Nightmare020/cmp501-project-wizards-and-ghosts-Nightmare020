@@ -30,19 +30,19 @@ public class PauseMenu : MonoBehaviour
             _ghostInputManager = GetGhostInputs();
         }
 
-        if (isPaused && _wizardInputManager && _ghostInputManager)
+        if (isPaused && (_wizardInputManager || _ghostInputManager))
         {
-            if (_wizardInputManager.NavigationRight() || _ghostInputManager.NavigationRight())
+            if (_wizardInputManager.NavigationRight() /*|| _ghostInputManager.NavigationRight()*/)
             {
                 SelectNext();
                 HighLightButtons();
             }
-            else if (_wizardInputManager.NavigationLeft() || _ghostInputManager.NavigationLeft())
+            else if (_wizardInputManager.NavigationLeft() /*|| _ghostInputManager.NavigationLeft()*/)
             {
                 SelectPrev();
                 HighLightButtons();
             }
-            else if (_wizardInputManager.NavigationSelect() || _ghostInputManager.NavigationSelect())
+            else if (_wizardInputManager.NavigationSelect() /*|| _ghostInputManager.NavigationSelect()*/)
             {
                 if (selectedIndex == 0)
                 {
@@ -53,10 +53,6 @@ public class PauseMenu : MonoBehaviour
                     ResetTheGame();
                 }
                 else if (selectedIndex == 2)
-                {
-                    GoToMainMenu();
-                }
-                else if (selectedIndex == 3)
                 {
                     QuitGame();
                 }

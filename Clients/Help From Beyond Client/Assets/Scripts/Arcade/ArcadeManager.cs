@@ -51,7 +51,7 @@ public class ArcadeManager : MonoBehaviour
     {
         timer = gameObject.AddComponent<MyStopwatch>();
         _jsonSaving = FindObjectOfType<JsonSaving>();
-        _saveData = _jsonSaving._saveData;
+        //_saveData = _jsonSaving._saveData;
     }
 
     void Start()

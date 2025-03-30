@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class BulletPool : MonoBehaviour
@@ -17,6 +18,12 @@ public class BulletPool : MonoBehaviour
 
     private void Start()
     {
+        if (!NetworkManager.Singleton.IsServer)
+        {
+            enabled = false;
+            return;
+        }
+
         transform.parent = null;
     }
 
