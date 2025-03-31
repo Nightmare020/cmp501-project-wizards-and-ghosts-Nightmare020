@@ -52,8 +52,6 @@ public class GhostMovement : NetworkBehaviour
     {
         if (direction == Vector2.zero) return;
 
-        //direction *= _gamePadAddedSpeed;
-
         float speed = _ghostValues.moveSpeed;
         Vector2 desiredVelocity = direction.normalized * strength * speed;
         Vector2 velocityDiff = desiredVelocity - _ghostValues.rigidBody.velocity;
