@@ -966,8 +966,7 @@ MonoBehaviour:
   speed: 10
   shooterSpriteTransform: {fileID: 9160190371023328138}
   ShootingEnabled: 1
-  fastShootiingEnabled: 0
-  bulletTemplate: {fileID: 11891641706342740, guid: b425946487e879446a258e3344c0caec, type: 3}
+  bulletTemplate: {fileID: 11891641706342740, guid: 2fa04592b614b374aaf239425dfdc221, type: 3}
   _bulletPool: {fileID: 6319975481429812802}
 --- !u!61 &8349854867884038573
 BoxCollider2D:
@@ -1203,6 +1202,7 @@ MonoBehaviour:
   otherPlayer: {fileID: 0}
   isDead: 0
   _spriteRendererWizard: {fileID: 1415462225}
+  startingPoints: []
 --- !u!114 &7231328292045201685
 MonoBehaviour:
   m_ObjectHideFlags: 0

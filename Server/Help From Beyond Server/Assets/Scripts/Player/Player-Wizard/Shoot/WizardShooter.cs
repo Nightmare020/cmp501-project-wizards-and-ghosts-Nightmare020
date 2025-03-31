@@ -26,11 +26,6 @@ public class WizardShooter : NetworkBehaviour
         //_bullet.DisableBullet();
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-    }
-
     private void Update()
     {
         if (!IsOwner || !ShootingEnabled) return;
@@ -82,15 +77,9 @@ public class WizardShooter : NetworkBehaviour
         GameObject bulletObj = Instantiate(bulletTemplate, origin, Quaternion.identity);
         Bullet bullet = bulletObj.GetComponent<Bullet>();
 
-        // Set rotation and movement before spawning
-        bullet.transform.right = direction;
-        bullet.transform.position = origin;
-
-        // Immediately enable and launch the bullet
-        bullet.transform.right = direction;
-        bullet.EnableBullet();
-        bullet.Launch(direction.normalized * speed);
-
         bulletObj.GetComponent<NetworkObject>().Spawn();
+
+        // Launch bullet
+        bullet.LaunchOnServer(origin, direction.normalized * speed);
     }
 }

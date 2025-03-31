@@ -12,6 +12,7 @@ public class WizardShooter : NetworkBehaviour
     private MyInputManager _inputs;
     public bool ShootingEnabled = true;
     private bool displayed = false;
+
     [NonSerialized] public Bullet _bullet;
     [SerializeField] private GameObject bulletTemplate;
     [SerializeField] private BulletPool _bulletPool;
@@ -74,15 +75,9 @@ public class WizardShooter : NetworkBehaviour
         GameObject bulletObj = Instantiate(bulletTemplate, origin, Quaternion.identity);
         Bullet bullet = bulletObj.GetComponent<Bullet>();
 
-        // Set rotation and movement before spawning
-        bullet.transform.right = direction;
-        bullet.transform.position = origin;
-
-        // Immediately enable and launch the bullet
-        bullet.transform.right = direction;
-        bullet.EnableBullet();
-        bullet.Launch(direction.normalized * speed);
-
         bulletObj.GetComponent<NetworkObject>().Spawn();
+
+        // Launch bullet
+        bullet.LaunchOnServer(origin, direction.normalized * speed);
     }
 }

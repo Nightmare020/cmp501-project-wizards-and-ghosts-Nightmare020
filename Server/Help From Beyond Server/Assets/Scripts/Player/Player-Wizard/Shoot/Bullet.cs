@@ -13,6 +13,7 @@ public class Bullet : NetworkBehaviour
     private static readonly int Shoot1 = Animator.StringToHash("Shoot");
     private static readonly int Die = Animator.StringToHash("die");
     public bool isBeingUsed = false;
+    public bool canShoot = true;
     public bool enhanced = false;
     private CameraShake _cameraShake;
 
@@ -35,7 +36,7 @@ public class Bullet : NetworkBehaviour
     [SerializeField] private AudioClip shootSound, BounceSound, ImpactSound;
     [SerializeField] private AudioSource _audioSource;
 
-//children
+    //children
     private List<Transform> children;
 
     private void Start()
@@ -153,13 +154,8 @@ public class Bullet : NetworkBehaviour
         //trampolin
         if (!other.gameObject.CompareTag("Wizard"))
         {
-            //trampolin
-            if (other.gameObject.CompareTag("Trampoline"))
-            {
-                Bounce(_rigidbody2D.velocity.normalized, other.contacts[0].normal);
-            }
 
-            //enemigos
+            //enemies
             if (other.gameObject.CompareTag("Wizard Enemy"))
             {
                 //PlayerEnemy enemy = other.gameObject.GetComponent<PlayerEnemy>();
@@ -180,7 +176,7 @@ public class Bullet : NetworkBehaviour
 
                 Impact(transform.position);
             }
-            //escenario
+            //scene
             else
             {
                 Impact(transform.position);
@@ -196,17 +192,65 @@ public class Bullet : NetworkBehaviour
         }
     }
 
-    public void Launch(Vector2 velocity)
+    public void LaunchOnServer(Vector2 origin, Vector2 velocity)
     {
+        // Set rotation and movement before spawning
+        transform.position = origin;
+        transform.right = velocity;
+
+        EnableBullet();
+        LaunchClientRpc(origin, velocity);
+
+        // Apply velocity on server side
         _rigidbody2D.velocity = velocity;
-        _audioSource.clip = shootSound;
-        _audioSource.Play();
+
+        // Cleanup after 3 seconds
+        StartCoroutine(AutoDespawnAfterSeconds(3));
+    }
+
+    [ClientRpc]
+    private void LaunchClientRpc(Vector2 origin, Vector2 velocity)
+    {
+        transform.position = origin;
+        transform.right = velocity;
+
+        EnableBullet();
+        _rigidbody2D.velocity = velocity;
 
         shootEffect.position = transform.position + (Vector3)(velocity.normalized * 0.5f);
         shootAnimator.SetTrigger("Shoot");
 
+        if (!IsServer)
+        {
+            _audioSource.clip = shootSound;
+            _audioSource.Play();
+        }
+
         isBeingUsed = true;
         origin = transform.position;
-        //_cameraShake.Shake(0.1f, 0.1f);
+
+        if (IsOwner || IsLocalPlayer)
+        {
+            _cameraShake = FindObjectOfType<CameraShake>();
+            _cameraShake.Shake(0.1f, 0.1f);
+        }
+    }
+
+    private IEnumerator AutoDespawnAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+
+        // Re-parent detached effects so they are destroyed with the bullet
+        if (shootEffect != null) shootEffect.SetParent(transform);
+        if (impactEffect != null) impactEffect.SetParent(transform);
+        if (bounceEffect != null) bounceEffect.SetParent(transform);
+
+        if (IsServer && NetworkObject.IsSpawned)
+        {
+            NetworkObject.Despawn(true);
+        }
+
+        isBeingUsed = false;
+        canShoot = true;
     }
 }

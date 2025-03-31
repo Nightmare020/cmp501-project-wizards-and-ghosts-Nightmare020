@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7982579627907804833}
   - component: {fileID: 573181184905199391}
   - component: {fileID: 8847937426576653450}
-  - component: {fileID: 2902245524992645604}
+  - component: {fileID: 6427369992993300301}
   m_Layer: 6
   m_Name: WizardBullet
   m_TagString: Untagged
@@ -183,7 +183,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &2902245524992645604
+--- !u!114 &6427369992993300301
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -589,8 +589,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 65430395
-  m_SortingLayer: 5
+  m_SortingLayerID: 135181995
+  m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 2b18d44d6d8244d5bbdbef2b52ba068b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
