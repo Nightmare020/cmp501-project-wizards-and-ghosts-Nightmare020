@@ -32,46 +32,28 @@ public class GhostMovement : NetworkBehaviour
         if (!IsOwner) return;
 
         Vector2 input = _inputs.GhostMovement();
+        float inputStrength = input.magnitude;
         _cachedInput = input;
-        _gamePadAddedSpeed = input.magnitude;
+        _gamePadAddedSpeed = inputStrength;
 
         UpdateFacingDirection(input);
 
-        SendInputToServerRpc(input);
-    }
-
-    private void FixedUpdate()
-    {
-        if (!IsServer) return;
-
-        //MoveGhost(_cachedInput);
-
-        // Fly
-        //if (MoveDirectionVectorNormalized() != Vector2.zero)
-        //{
-        //    Vector2 moveDirection = MoveDirectionVectorNormalized();
-        //    speed = _ghostValues.moveSpeed;
-        //    moveDirection *= _gamePadAddedSpeed;
-        //    _ghostValues.rigidBody.AddForce(moveDirection * speed -
-        //                                     _ghostValues.rigidBody.velocity);
-        //}
+        SendInputToServerRpc(input, inputStrength);
     }
 
     [ServerRpc]
-    private void SendInputToServerRpc(Vector2 input)
+    private void SendInputToServerRpc(Vector2 input, float inputStrength)
     {
-        MoveGhost(input);
+        MoveGhost(input, inputStrength);
         UpdateGhostVisualClientRpc(input);
     }
 
-    private void MoveGhost(Vector2 direction)
+    private void MoveGhost(Vector2 direction, float strength)
     {
         if (direction == Vector2.zero) return;
 
-        //direction *= _gamePadAddedSpeed;
-
         float speed = _ghostValues.moveSpeed;
-        Vector2 desiredVelocity = direction * speed;
+        Vector2 desiredVelocity = direction.normalized * strength * speed;
         Vector2 velocityDiff = desiredVelocity - _ghostValues.rigidBody.velocity;
 
         _ghostValues.rigidBody.AddForce(velocityDiff);
