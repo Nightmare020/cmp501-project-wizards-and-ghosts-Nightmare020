@@ -51,12 +51,12 @@ public class PlayerManager : NetworkBehaviour
             // Set the player's starting position
             if (startingPoints != null && startingPoints.Count > 0)
             {
-                transform.position = startingPoints[0].localPosition; // Use the first starting point for now
+                transform.position = startingPoints[1].localPosition; // Use the first starting point for now
             }
         }
 
         // Initialize player state as Wizard
-        SetCurrentState(PlayerState.Wizard);
+        SetCurrentState(PlayerState.Ghost);
 
         // Enable control over the wizard player
         EnableControl();
@@ -69,7 +69,7 @@ public class PlayerManager : NetworkBehaviour
         MyInputManager inputManager = GetComponent<MyInputManager>();
         if (inputManager != null)
         {
-            inputManager.SetInputMap(CurrentInputState.Wizard);
+            inputManager.SetInputMap(CurrentInputState.Ghost);
         }
     }
 

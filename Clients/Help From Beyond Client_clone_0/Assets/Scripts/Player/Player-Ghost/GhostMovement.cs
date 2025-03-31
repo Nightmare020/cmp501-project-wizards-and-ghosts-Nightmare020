@@ -13,7 +13,7 @@ public class GhostMovement : NetworkBehaviour
     private float _objectWidth;
     private float _objectHeight;
 
-
+    private Vector2 _cachedInput;
     private float speed = 0;
 
     private void Start()
@@ -27,47 +27,82 @@ public class GhostMovement : NetworkBehaviour
         _objectHeight = _ghostValues.spriteRenderer.bounds.extents.y; //extents = size of height / 2
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        // Fly
-        if (MoveDirectionVectorNormalized() != Vector2.zero)
-        {
-            Vector2 moveDirection = MoveDirectionVectorNormalized();
-            speed = _ghostValues.moveSpeed;
-            moveDirection *= _gamePadAddedSpeed;
-            _ghostValues.rigidBody.AddForce(moveDirection * speed -
-                                             _ghostValues.rigidBody.velocity);
-        }
+        if (!IsOwner) return;
+
+        Vector2 input = _inputs.GhostMovement();
+        _cachedInput = input;
+        _gamePadAddedSpeed = input.magnitude;
+
+        UpdateFacingDirection(input);
+
+        SendInputToServerRpc(input);
     }
 
-    private Vector2 MoveDirectionVectorNormalized()
+    [ServerRpc]
+    private void SendInputToServerRpc(Vector2 input)
     {
-        Vector2 direction = _inputs.GhostMovement();
-        //print(direction);
-        _gamePadAddedSpeed = direction.magnitude;
+        MoveGhost(input);
+        UpdateGhostVisualClientRpc(input);
+    }
 
-        if (direction.x == 0) _ghostValues.aimDirection.x = 0;
-        else if (direction.x > 0)
+    private void MoveGhost(Vector2 direction)
+    {
+        if (direction == Vector2.zero) return;
+
+        //direction *= _gamePadAddedSpeed;
+
+        float speed = _ghostValues.moveSpeed;
+        Vector2 desiredVelocity = direction * speed;
+        Vector2 velocityDiff = desiredVelocity - _ghostValues.rigidBody.velocity;
+
+        _ghostValues.rigidBody.AddForce(velocityDiff);
+    }
+
+    private void UpdateFacingDirection(Vector2 input)
+    {
+        if (input.x > 0)
         {
             _ghostValues.spriteRenderer.flipX = false;
             _ghostValues.aimDirection.x = 1;
             _ghostValues.facing = 1;
         }
-        else if (direction.x < 0)
+        else if (input.x < 0)
         {
             _ghostValues.spriteRenderer.flipX = true;
             _ghostValues.aimDirection.x = -1;
             _ghostValues.facing = -1;
         }
 
-        if (direction.y == 0) _ghostValues.aimDirection.y = 0;
-        else _ghostValues.aimDirection.y = direction.y > 0 ? 1 : -1;
+        _ghostValues.aimDirection.y = input.y == 0 ? 0 : (input.y > 0 ? 1 : -1);
+    }
 
-        return new Vector2(direction.x, direction.y);
+    [ClientRpc]
+    private void UpdateGhostVisualClientRpc(Vector2 input)
+    {
+        if (IsOwner || !Application.isPlaying) return;
+
+        if (input.x > 0)
+        {
+            _ghostValues.spriteRenderer.flipX = false;
+            _ghostValues.aimDirection.x = 1;
+            _ghostValues.facing = 1;
+        }
+        else if (input.x < 0)
+        {
+            _ghostValues.spriteRenderer.flipX = true;
+            _ghostValues.aimDirection.x = -1;
+            _ghostValues.facing = -1;
+        }
+
+        _ghostValues.aimDirection.y = input.y == 0 ? 0 : (input.y > 0 ? 1 : -1);
     }
 
     void LateUpdate()
     {
+        if (!IsOwner) return;
+
         _screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
         Vector3 viewPos = transform.root.position;
 
@@ -84,5 +119,4 @@ public class GhostMovement : NetworkBehaviour
         Gizmos.DrawSphere(new Vector3(_upperBound.x, _upperBound.y, 0), 1);
         Gizmos.DrawSphere(new Vector3(_lowerBound.x, _lowerBound.y, 0), 1);
     }
-
 }
