@@ -6,14 +6,10 @@ TagManager:
   tags:
   - Ghost
   - Wizard
-  - Trampoline
-  - Wizard Enemy
   - Ghost Enemy
   - Lava
   - ActiveWizard
   - ActiveGhost
-  - InstanceItem
-  - PowerUpItem
   layers:
   - Default
   - TransparentFX
@@ -30,12 +26,12 @@ TagManager:
   - Lava
   - Wall
   - Items
-  - Trampolin
-  - BarrierGhost
-  - BarrierKey
-  - GhostKey
-  - PlayerKey
-  - DeployedTrampoline
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 
