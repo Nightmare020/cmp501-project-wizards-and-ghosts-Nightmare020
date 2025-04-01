@@ -56,7 +56,7 @@ public class PlayerManager : NetworkBehaviour
         }
 
         // Initialize player state as Wizard
-        SetCurrentState(PlayerState.Ghost);
+        SetCurrentState(PlayerState.Wizard);
 
         // Enable control over the wizard player
         EnableControl();
@@ -69,7 +69,7 @@ public class PlayerManager : NetworkBehaviour
         MyInputManager inputManager = GetComponent<MyInputManager>();
         if (inputManager != null)
         {
-            inputManager.SetInputMap(CurrentInputState.Ghost);
+            inputManager.SetInputMap(CurrentInputState.Wizard);
         }
     }
 
