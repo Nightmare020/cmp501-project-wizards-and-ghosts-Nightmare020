@@ -139,6 +139,7 @@ public class Bullet : NetworkBehaviour
     {
         _audioSource.clip = ImpactSound;
         _audioSource.Play();
+
         //impact animation
         impactEffect.position = colpoint;
         impactAnimator.SetTrigger("Impact");
@@ -153,25 +154,14 @@ public class Bullet : NetworkBehaviour
         //trampolin
         if (!other.gameObject.CompareTag("Wizard"))
         {
-
             //enemies
-            if (other.gameObject.CompareTag("Wizard Enemy"))
+            if (other.gameObject.CompareTag("Ghost Enemy"))
             {
-                //PlayerEnemy enemy = other.gameObject.GetComponent<PlayerEnemy>();
-                //if (enhanced)
-                //{
-                //    enemy.Die();
-                //}
-
-                Impact(transform.position);
-            }
-            else if (other.gameObject.CompareTag("Ghost Enemy"))
-            {
-                //GhostEnemy enemy = other.gameObject.GetComponent<GhostEnemy>();
-                //if (enhanced)
-                //{
-                //    enemy.Die();
-                //}
+                GhostEnemy enemy = other.gameObject.GetComponent<GhostEnemy>();
+                if (enhanced)
+                {
+                    enemy.Die();
+                }
 
                 Impact(transform.position);
             }
