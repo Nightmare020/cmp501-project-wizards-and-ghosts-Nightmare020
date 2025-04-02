@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Unity.Burst.Intrinsics;
 using Unity.Netcode;
 using UnityEngine;
@@ -72,6 +73,7 @@ public class WizardShooter : NetworkBehaviour
 
         Bullet bullet = _bulletPool.GetBullet();
 
+        // Set position and rotation before spawning
         bullet.transform.position = ray2.origin;
         bullet.transform.right = ray2.direction;
 
@@ -84,8 +86,32 @@ public class WizardShooter : NetworkBehaviour
         // Inform all clients to replicate the shoot VFX and position
         ulong bulletNetId = bullet.NetworkObject.NetworkObjectId;
 
+        // Synchronize the bullet's position and rotation
+        SyncBulletTransformClientRpc(ray2.origin, ray2.direction, bulletNetId);
+
         // Ask all clients to play sound and VFX
         PlayShootClientRpc(ray2.GetPoint(0.5f), bulletNetId);
+    }
+
+    [ClientRpc]
+    private void SyncBulletTransformClientRpc(Vector3 position, Vector3 direction, ulong bulletNetworkId)
+    {
+        // Ignore if server (already running shooter logic)
+        if (IsServer) return;
+
+        StartCoroutine(ApplyTransformAfterSpawn(position, direction, bulletNetworkId));
+    }
+
+    private IEnumerator ApplyTransformAfterSpawn(Vector3 position, Vector3 direction, ulong bulletNetworkId)
+    {
+        // Wait one frame to ensure spawn is complete
+        yield return null;
+
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(bulletNetworkId, out var bulletObj))
+        {
+            Bullet bullet = bulletObj.GetComponent<Bullet>();
+            bullet?.SetClientTransform(position, direction);
+        }
     }
 
     [ClientRpc]

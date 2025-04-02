@@ -49,10 +49,13 @@ public class Bullet : NetworkBehaviour
     {
         _cameraShake = FindObjectOfType<CameraShake>();
 
-        //_enemyManager = FindObjectOfType<EnemyManager>();
-        shootEffect.parent = null;
-        impactEffect.parent = null;
-        bounceEffect.parent = null;
+        if (IsServer)
+        {
+            //_enemyManager = FindObjectOfType<EnemyManager>();
+            shootEffect.parent = null;
+            impactEffect.parent = null;
+            bounceEffect.parent = null;
+        }
     }
 
     private void Update()
@@ -94,6 +97,10 @@ public class Bullet : NetworkBehaviour
 
     IEnumerator ShootCoroutine(Ray ray, float speed)
     {
+        // Disable visual + collider immediately
+        DisableBullet();
+
+        // Play charge-up VFX
         shootEffect.position = ray.GetPoint(0.5f);
         shootAnimator.SetTrigger("Shoot");
 
@@ -104,12 +111,18 @@ public class Bullet : NetworkBehaviour
             _audioSource.Play();
         }
 
+        // Wait for charge-up effect
         yield return new WaitForSeconds(0.5f);
 
+        // Now launch the bullet visually + physically
         EnableBullet();
-        transform.position = ray.GetPoint(0.6f);
-        _rigidbody2D.velocity = ray.direction * speed;
-        transform.right = ray.direction;
+
+        if (IsServer)
+        {
+            transform.position = ray.GetPoint(0.6f);
+            transform.right = ray.direction;
+            _rigidbody2D.velocity = ray.direction * speed;
+        }
 
         if (!IsServer || IsHost)
         {
@@ -211,6 +224,9 @@ public class Bullet : NetworkBehaviour
 
     public void PlayShootVFX(Vector3 effectPos)
     {
+        // Hide visuals + collider during buildup
+        DisableBullet();
+
         if (shootEffect != null) shootEffect.position = effectPos;
         if (shootAnimator != null) shootAnimator.SetTrigger("Shoot");
 
@@ -224,6 +240,21 @@ public class Bullet : NetworkBehaviour
         {
             _cameraShake.Shake(0.1f, 0.1f);
         }
+
+        // Then enable visuals slightly after (purely visuals, won't shoot)
+        StartCoroutine(RevealClientBulletVisuals());
+    }
+
+    private IEnumerator RevealClientBulletVisuals()
+    {
+        yield return new WaitForSeconds(0.5f);
+        EnableBullet();
+    }
+
+    public void SetClientTransform(Vector3 position, Vector3 direction)
+    {
+        transform.position = position;
+        transform.right = direction;
     }
 
     private void OnCollisionEnter2D(Collision2D other)
