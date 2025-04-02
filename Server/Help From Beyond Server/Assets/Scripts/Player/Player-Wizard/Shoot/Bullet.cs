@@ -15,6 +15,7 @@ public class Bullet : NetworkBehaviour
     public bool isBeingUsed = false;
     public bool enhanced = false;
     private CameraShake _cameraShake;
+    private bool hasBeenDespawned = false;
 
     private Vector3 origin;
     //bullet particles
@@ -38,11 +39,15 @@ public class Bullet : NetworkBehaviour
     //children
     private List<Transform> children;
 
+    private void Awake()
+    {
+        children = new List<Transform>();
+        children.AddRange(GetComponentsInChildren<Transform>());
+    }
+
     private void Start()
     {
         _cameraShake = FindObjectOfType<CameraShake>();
-        children = new List<Transform>();
-        children.AddRange(GetComponentsInChildren<Transform>());
 
         //_enemyManager = FindObjectOfType<EnemyManager>();
         shootEffect.parent = null;
@@ -79,24 +84,48 @@ public class Bullet : NetworkBehaviour
         isBeingUsed = true;
         enhanced = false;
         _sprite.color = Color.white;
+
         ChangeLayer(14);
         StartCoroutine(ShootCoroutine(ray, speed));
+
+        // Despawn after 3 seconds
+        StartCoroutine(DestroyAfterSeconds(3f));
     }
 
     IEnumerator ShootCoroutine(Ray ray, float speed)
     {
         shootEffect.position = ray.GetPoint(0.5f);
         shootAnimator.SetTrigger("Shoot");
-        yield return new WaitForSeconds(0.5f);
 
-        _audioSource.clip = shootSound;
-        _audioSource.Play();
+        // Avoid playing audio on the sever if it's not a host client
+        if (!IsServer || IsHost)
+        {
+            _audioSource.clip = shootSound;
+            _audioSource.Play();
+        }
+
+        yield return new WaitForSeconds(0.5f);
 
         EnableBullet();
         transform.position = ray.GetPoint(0.6f);
         _rigidbody2D.velocity = ray.direction * speed;
         transform.right = ray.direction;
-        _cameraShake.Shake(0.1f, 0.1f);
+
+        if (!IsServer || IsHost)
+        {
+            _cameraShake.Shake(0.1f, 0.1f);
+        }
+    }
+
+    private IEnumerator DestroyAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+
+        if (!hasBeenDespawned)
+        {
+            // play impact effect
+            Impact(transform.position);
+        }
     }
 
     public void Bounce(Vector2 direction, Vector2 normal)
@@ -137,15 +166,64 @@ public class Bullet : NetworkBehaviour
 
     public void Impact(Vector2 colpoint)
     {
+        if (hasBeenDespawned) return;
+
+        hasBeenDespawned = true;
         _audioSource.clip = ImpactSound;
         _audioSource.Play();
+
         //impact animation
         impactEffect.position = colpoint;
         impactAnimator.SetTrigger("Impact");
 
         _rigidbody2D.velocity = Vector2.zero;
+
+        // Call reset after short delay to allow VFX to play
+        StartCoroutine(ResetAfterVFX());
+    }
+
+    private IEnumerator ResetAfterVFX()
+    {
+        yield return new WaitForSeconds(0.2f);
+        ResetBullet();
+
+        if (IsServer && NetworkObject.IsSpawned)
+        {
+            // remove from network
+            NetworkObject.Despawn(true);
+        }
+
+        Destroy(gameObject);
+    }
+
+    private void ResetBullet()
+    {
+        // Re-parent VFX back to this bullet
+        shootEffect.SetParent(transform);
+        impactEffect.SetParent(transform);
+        bounceEffect.SetParent(transform);
+
+        // Disable sprite + collider
         DisableBullet();
         isBeingUsed = false;
+        enhanced = false;
+    }
+
+    public void PlayShootVFX(Vector3 effectPos)
+    {
+        if (shootEffect != null) shootEffect.position = effectPos;
+        if (shootAnimator != null) shootAnimator.SetTrigger("Shoot");
+
+        if (_audioSource != null && shootSound != null)
+        {
+            _audioSource.clip = shootSound;
+            _audioSource.Play();
+        }
+
+        if (_cameraShake != null)
+        {
+            _cameraShake.Shake(0.1f, 0.1f);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -153,25 +231,14 @@ public class Bullet : NetworkBehaviour
         //trampolin
         if (!other.gameObject.CompareTag("Wizard"))
         {
-
             //enemies
-            if (other.gameObject.CompareTag("Wizard Enemy"))
+            if (other.gameObject.CompareTag("Ghost Enemy"))
             {
-                //PlayerEnemy enemy = other.gameObject.GetComponent<PlayerEnemy>();
-                //if (enhanced)
-                //{
-                //    enemy.Die();
-                //}
-
-                Impact(transform.position);
-            }
-            else if (other.gameObject.CompareTag("Ghost Enemy"))
-            {
-                //GhostEnemy enemy = other.gameObject.GetComponent<GhostEnemy>();
-                //if (enhanced)
-                //{
-                //    enemy.Die();
-                //}
+                GhostEnemy enemy = other.gameObject.GetComponent<GhostEnemy>();
+                if (enhanced)
+                {
+                    enemy.Die();
+                }
 
                 Impact(transform.position);
             }
@@ -187,7 +254,10 @@ public class Bullet : NetworkBehaviour
     {
         foreach (var child in children)
         {
-            child.gameObject.layer = layer;
+            if (child != null)
+            {
+                child.gameObject.layer = layer;
+            }
         }
     }
 }

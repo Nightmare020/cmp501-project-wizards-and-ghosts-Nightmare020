@@ -34,7 +34,7 @@ public class BulletPool : MonoBehaviour
             return bullet;
         GameObject newBullet = Instantiate(bulletTemplate, transform);
         Bullet bulletComp = newBullet.GetComponent<Bullet>();
-        InsertNewBullet( bulletComp);
+        InsertNewBullet(bulletComp);
         return bulletComp;
     }
 
@@ -57,6 +57,4 @@ public class BulletPool : MonoBehaviour
 
     private void InsertNewBullet(Bullet newBullet) =>
         usedBullets.Enqueue(newBullet);
-
-
 }

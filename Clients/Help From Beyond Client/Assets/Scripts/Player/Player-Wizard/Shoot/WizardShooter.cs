@@ -1,8 +1,9 @@
 using System;
-
+using Unity.Burst.Intrinsics;
+using Unity.Netcode;
 using UnityEngine;
 
-public class WizardShooter : MonoBehaviour
+public class WizardShooter : NetworkBehaviour
 {
     // Start is called before the first frame update
     public float distance, speed;
@@ -11,7 +12,7 @@ public class WizardShooter : MonoBehaviour
     private SpriteRenderer shooterSprite;
     private MyInputManager _inputs;
     public bool ShootingEnabled = true;
-    public bool fastShootiingEnabled = false;
+    public bool fastShootingEnabled = false;
     private bool displayed = false;
     [NonSerialized] public Bullet _bullet;
     [SerializeField] private GameObject bulletTemplate;
@@ -22,50 +23,28 @@ public class WizardShooter : MonoBehaviour
     {
         _inputs = GetComponentInParent<MyInputManager>();
         shooterSprite = shooterSpriteTransform.GetComponentInChildren<SpriteRenderer>();
-        _bullet = Instantiate(bulletTemplate, null).GetComponent<Bullet>();
-        _bullet.DisableBullet();
-    }
-
-    // Update is called once per frame
-    void FixedUpdate()
-    {
+        //_bullet = Instantiate(bulletTemplate, null).GetComponent<Bullet>();
+        //_bullet.DisableBullet();
     }
 
     private void Update()
     {
-        if (ShootingEnabled)
-        {
-            Vector2 aim = _inputs.WizardAim();
-            if (aim != Vector2.zero)
-            {
-                SetSooterPosition(aim);
-            }
-            else
-            {
-                if (displayed)
-                    HideShooter();
-            }
+        if (!IsOwner || !ShootingEnabled) return;
 
-            if (displayed && _inputs.WizardShootPerformedThisFrame())
-            {
-                if (fastShootiingEnabled)
-                {
-                    //shoot
-                    Ray ray1 = new Ray(transform.position, aim);
-                    Ray ray2 = new Ray(ray1.GetPoint(distance), ray1.direction);
-                    _bulletPool.GetBullet().Shoot(ray2, speed);
-                }
-                else
-                {
-                    if (!_bullet.isBeingUsed)
-                    {
-                        //shoot
-                        Ray ray1 = new Ray(transform.position, aim);
-                        Ray ray2 = new Ray(ray1.GetPoint(distance), ray1.direction);
-                        _bullet.Shoot(ray2, speed);
-                    }
-                }
-            }
+        Vector2 aim = _inputs.WizardAim();
+        if (aim != Vector2.zero)
+        {
+            SetSooterPosition(aim);
+        }
+        else
+        {
+            if (displayed)
+                HideShooter();
+        }
+
+        if (displayed && _inputs.WizardShootPerformedThisFrame())
+        {
+            SendShootRequestServerRpc(aim, fastShootingEnabled);
         }
     }
 
@@ -83,5 +62,42 @@ public class WizardShooter : MonoBehaviour
     {
         displayed = false;
         shooterSprite.enabled = false;
+    }
+
+    [ServerRpc]
+    private void SendShootRequestServerRpc(Vector2 aimDirection, bool fastMode)
+    {
+        Ray ray1 = new Ray(transform.position, aimDirection);
+        Ray ray2 = new Ray(ray1.GetPoint(distance), ray1.direction);
+
+        Bullet bullet = _bulletPool.GetBullet();
+
+        bullet.transform.position = ray2.origin;
+        bullet.transform.right = ray2.direction;
+
+        // Spawn the bullet over the network
+        bullet.NetworkObject.Spawn();
+
+        // Server handles physics and VFX
+        bullet.Shoot(ray2, speed);
+
+        // Inform all clients to replicate the shoot VFX and position
+        ulong bulletNetId = bullet.NetworkObject.NetworkObjectId;
+
+        // Ask all clients to play sound and VFX
+        PlayShootClientRpc(ray2.GetPoint(0.5f), bulletNetId);
+    }
+
+    [ClientRpc]
+    private void PlayShootClientRpc(Vector3 effectPosition, ulong bulletNetworkId)
+    {
+        // Ignore if server (already running shooter logic)
+        if (IsServer) return;
+
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(bulletNetworkId, out var bulletObj))
+        {
+            var bullet = bulletObj.GetComponent<Bullet>();
+            bullet?.PlayShootVFX(effectPosition);
+        }
     }
 }
