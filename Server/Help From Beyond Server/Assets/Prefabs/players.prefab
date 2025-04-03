@@ -515,6 +515,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b0748eba0f9b8a489649e869bc86d68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _ghostVisionTransform: {fileID: 8610665590736290276}
 --- !u!114 &4035409913952007637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -933,7 +934,7 @@ MonoBehaviour:
   speed: 10
   shooterSpriteTransform: {fileID: 9160190371023328138}
   ShootingEnabled: 1
-  fastShootiingEnabled: 0
+  fastShootingEnabled: 0
   bulletTemplate: {fileID: 11891641706342740, guid: 2fa04592b614b374aaf239425dfdc221, type: 3}
   _bulletPool: {fileID: 6319975481429812802}
 --- !u!61 &8349854867884038573
@@ -1163,6 +1164,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentState:
     m_InternalValue: 0
+  cameraBounds:
+    m_InternalValue: {x: 0, y: 0, z: 0, w: 0}
   wizard: {fileID: 2597758118102961652}
   ghost: {fileID: 1003782997826075125}
   dead: {fileID: 3150205241240628197}

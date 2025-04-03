@@ -112,8 +112,8 @@ public class GhostMovement : NetworkBehaviour
         float width = _objectWidth;
         float heigth = _objectHeight;
 
-        viewPos.x = Mathf.Clamp(viewPos.x, bounds.x + width, bounds.y - width);
-        viewPos.y = Mathf.Clamp(viewPos.y, bounds.z + heigth, bounds.w - heigth);
+        viewPos.x = Mathf.Clamp(viewPos.x, bounds.x + width, bounds.z - width);
+        viewPos.y = Mathf.Clamp(viewPos.y, bounds.y + heigth, bounds.w - heigth);
 
         // Get world bounds from wizard's camera
         //_screenBounds = wizardCam.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, wizardCam.transform.position.z));

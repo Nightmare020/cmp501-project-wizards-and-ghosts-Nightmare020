@@ -126,7 +126,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (!IsOwner || currentState.Value != PlayerState.Wizard) return;
+        if (!(IsOwner || (IsServer && currentState.Value != PlayerState.Wizard))) return;
 
         Camera wizardCam = _camera;
         if (!wizardCam) return;
@@ -165,6 +165,7 @@ public class PlayerManager : NetworkBehaviour
                 dead.SetActive(false);
                 cameraFollow.m_Target = transform;
                 break;
+
             case PlayerState.Ghost:
                 currentState.Value = playerState;
                 Debug.Log("Setting tag to ActiveGhost");
@@ -177,8 +178,15 @@ public class PlayerManager : NetworkBehaviour
                 wizard.SetActive(false);
                 ghost.SetActive(true);
                 dead.SetActive(false);
-                cameraFollow.m_Target = null;
+
+                PlayerManager wizardPlayer = GetOtherPlayer();
+                if (wizardPlayer != null && wizardPlayer.currentState.Value == PlayerState.Wizard)
+                {
+                    cameraFollow.m_Target = wizardPlayer.transform;
+                }
+
                 break;
+
             case PlayerState.Dead:
                 isDead = true;
                 _rigidBody2D.simulated = false;

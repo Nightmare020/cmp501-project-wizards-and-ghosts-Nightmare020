@@ -29125,6 +29125,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 211684404302724544, guid: 63de50ae1a9d12f46807196cc92f1483, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3141080655069288082, guid: 63de50ae1a9d12f46807196cc92f1483, type: 3}
       propertyPath: m_Name
       value: Main Camera
@@ -29177,7 +29181,8 @@ PrefabInstance:
       propertyPath: originalOffset
       value: 1.3
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 211684404302724544, guid: 63de50ae1a9d12f46807196cc92f1483, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 63de50ae1a9d12f46807196cc92f1483, type: 3}
 --- !u!1001 &3537775896838545545
 PrefabInstance:
