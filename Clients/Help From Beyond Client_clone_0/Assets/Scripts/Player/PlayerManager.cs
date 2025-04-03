@@ -14,7 +14,11 @@ public enum PlayerState
 
 public class PlayerManager : NetworkBehaviour
 {
-    public NetworkVariable<PlayerState> currentState = new NetworkVariable<PlayerState>();
+    public NetworkVariable<PlayerState> currentState = new NetworkVariable<PlayerState>(
+        PlayerState.Wizard,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
     [SerializeField] private GameObject wizard, ghost, dead;
     [NonSerialized] public Camera _camera;
     [NonSerialized] public CameraShake cameraShake;
@@ -48,14 +52,29 @@ public class PlayerManager : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        currentState.OnValueChanged += OnPlayerStateChanged;
+
+        // If value already available, apply it
+        OnPlayerStateChanged(PlayerState.Wizard, currentState.Value);
+
         // Initialize player state as Wizard
-        SetCurrentState(currentState.Value);
+        //SetCurrentState(currentState.Value);
 
         // Enable control over the wizard player
         if (IsOwner)
         {
             EnableControl();
         }
+    }
+
+    private void OnDestroy()
+    {
+        currentState.OnValueChanged -= OnPlayerStateChanged;
+    }
+
+    private void OnPlayerStateChanged(PlayerState oldState, PlayerState newState)
+    {
+        SetCurrentState(newState);
     }
 
     private void EnableControl()
