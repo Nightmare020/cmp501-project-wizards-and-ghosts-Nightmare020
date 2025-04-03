@@ -24,8 +24,6 @@ public class WizardShooter : NetworkBehaviour
     {
         _inputs = GetComponentInParent<MyInputManager>();
         shooterSprite = shooterSpriteTransform.GetComponentInChildren<SpriteRenderer>();
-        //_bullet = Instantiate(bulletTemplate, null).GetComponent<Bullet>();
-        //_bullet.DisableBullet();
     }
 
     private void Update()

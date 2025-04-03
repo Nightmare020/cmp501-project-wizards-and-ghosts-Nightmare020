@@ -157,14 +157,9 @@ public class Bullet : NetworkBehaviour
 
         //if (_enemyManager)
         //{
-        //    Transform enemyPos = _enemyManager.GetClosestWizzardEnemy(transform.position);
         //    Transform enemyGhost = _enemyManager.GetClosestGhostEnemy(transform.position);
 
-        //    if (enemyPos)
-        //    {
-        //        reflectDirection = (enemyPos.position - transform.position).normalized;
-        //    }
-        //    else if (enemyGhost)
+        //    if (enemyGhost)
         //    {
         //        reflectDirection = (enemyGhost.position - transform.position).normalized;
         //    }
@@ -174,7 +169,6 @@ public class Bullet : NetworkBehaviour
         _rigidbody2D.velocity = reflectDirection * speed;
         _sprite.color = Color.blue;
         enhanced = true;
-        //play bounce effects
     }
 
     public void Impact(Vector2 colpoint)
@@ -185,7 +179,7 @@ public class Bullet : NetworkBehaviour
         _audioSource.clip = ImpactSound;
         _audioSource.Play();
 
-        //impact animation
+        // Impact animation
         impactEffect.position = colpoint;
         impactAnimator.SetTrigger("Impact");
 
@@ -202,7 +196,7 @@ public class Bullet : NetworkBehaviour
 
         if (IsServer && NetworkObject.IsSpawned)
         {
-            // remove from network
+            // Remove from network
             NetworkObject.Despawn(true);
         }
 
@@ -273,7 +267,7 @@ public class Bullet : NetworkBehaviour
 
                 Impact(transform.position);
             }
-            //scene
+            // Scene
             else
             {
                 Impact(transform.position);

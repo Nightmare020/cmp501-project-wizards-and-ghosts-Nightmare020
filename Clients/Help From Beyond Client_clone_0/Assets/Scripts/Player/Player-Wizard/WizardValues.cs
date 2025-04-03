@@ -61,24 +61,6 @@ public class WizardValues : MonoBehaviour
         }
 
         return false;
-
-
-        //
-        // RaycastHit2D hit2D = Physics2D.Raycast(transform.position,
-        //     Vector2.down, groundedRayDist, groundLayers);
-        // if (!hit2D)
-        // {
-        //     hit2D = Physics2D.Raycast(transform.position + new Vector3(groundedRayDistOffset, 0),
-        //         Vector2.down, groundedRayDist, groundLayers);
-        // }
-        //
-        // if (!hit2D)
-        // {
-        //     hit2D = Physics2D.Raycast(transform.position - new Vector3(groundedRayDistOffset, 0),
-        //         Vector2.down, groundedRayDist, groundLayers);
-        // }
-        //
-        // return rigidBody.IsTouching(walkeableLayers) && hit2D;
     }
 
     public void Die()

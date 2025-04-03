@@ -9,7 +9,9 @@ public class PauseMenu : MonoBehaviour
 {
     private MyInputManager _ghostInputManager, _wizardInputManager;
     public CanvasGroup pauseMenu;
+    public GameObject tutorialMenu;
     public bool isPaused;
+    private bool showingTutorials;
     [SerializeField] private List<Image> buttonImages;
     [SerializeField] private List<Sprite> pressedSprites, normalSprites;
 
@@ -30,19 +32,19 @@ public class PauseMenu : MonoBehaviour
             _ghostInputManager = GetGhostInputs();
         }
 
-        if (isPaused && _wizardInputManager && _ghostInputManager)
+        if (isPaused && (_wizardInputManager || _ghostInputManager))
         {
-            if (_wizardInputManager.NavigationRight() || _ghostInputManager.NavigationRight())
+            if (_wizardInputManager.NavigationRight() /*|| _ghostInputManager.NavigationRight()*/)
             {
                 SelectNext();
                 HighLightButtons();
             }
-            else if (_wizardInputManager.NavigationLeft() || _ghostInputManager.NavigationLeft())
+            else if (_wizardInputManager.NavigationLeft() /*|| _ghostInputManager.NavigationLeft()*/)
             {
                 SelectPrev();
                 HighLightButtons();
             }
-            else if (_wizardInputManager.NavigationSelect() || _ghostInputManager.NavigationSelect())
+            else if (_wizardInputManager.NavigationSelect() /*|| _ghostInputManager.NavigationSelect()*/)
             {
                 if (selectedIndex == 0)
                 {
@@ -50,11 +52,11 @@ public class PauseMenu : MonoBehaviour
                 }
                 else if (selectedIndex == 1)
                 {
-                    ResetTheGame();
+                    ShowTutorial();
                 }
                 else if (selectedIndex == 2)
                 {
-                    GoToMainMenu();
+                    ResetTheGame();
                 }
                 else if (selectedIndex == 3)
                 {
@@ -63,7 +65,14 @@ public class PauseMenu : MonoBehaviour
             }
             else if (_wizardInputManager.NavigationPause() || _ghostInputManager.NavigationPause())
             {
-                ResumeGame();
+                if (showingTutorials)
+                {
+                    HideTutorial();
+                }
+                else
+                {
+                    ResumeGame();
+                }
             }
         }
     }
@@ -168,6 +177,20 @@ public class PauseMenu : MonoBehaviour
         pauseMenu.alpha = 0;
         Time.timeScale = 1f;
         isPaused = false;
+    }
+
+    public void ShowTutorial()
+    {
+        Debug.Log("Show tutorial");
+        showingTutorials = true;
+        tutorialMenu.SetActive(true);
+    }
+
+    public void HideTutorial()
+    {
+        Debug.Log("Hide tutorial");
+        showingTutorials = false;
+        tutorialMenu.SetActive(false);
     }
 
     public void ResetTheGame()

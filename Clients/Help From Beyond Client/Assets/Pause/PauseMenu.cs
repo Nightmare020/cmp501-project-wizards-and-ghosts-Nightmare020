@@ -9,7 +9,9 @@ public class PauseMenu : MonoBehaviour
 {
     private MyInputManager _ghostInputManager, _wizardInputManager;
     public CanvasGroup pauseMenu;
+    public GameObject tutorialMenu;
     public bool isPaused;
+    private bool showingTutorials;
     [SerializeField] private List<Image> buttonImages;
     [SerializeField] private List<Sprite> pressedSprites, normalSprites;
 
@@ -50,16 +52,27 @@ public class PauseMenu : MonoBehaviour
                 }
                 else if (selectedIndex == 1)
                 {
-                    ResetTheGame();
+                    ShowTutorial();
                 }
                 else if (selectedIndex == 2)
+                {
+                    ResetTheGame();
+                }
+                else if (selectedIndex == 3)
                 {
                     QuitGame();
                 }
             }
-            else if (_wizardInputManager.NavigationPause() || _ghostInputManager.NavigationPause())
+            else if (_wizardInputManager.NavigationPause() /*|| _ghostInputManager.NavigationPause()*/)
             {
-                ResumeGame();
+                if (showingTutorials)
+                {
+                    HideTutorial();
+                }
+                else
+                {
+                    ResumeGame();
+                }
             }
         }
     }
@@ -166,6 +179,20 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
     }
 
+    public void ShowTutorial()
+    {
+        Debug.Log("Show tutorial");
+        showingTutorials = true;
+        tutorialMenu.SetActive(true);
+    }
+
+    public void HideTutorial()
+    {
+        Debug.Log("Hide tutorial");
+        showingTutorials = false;
+        tutorialMenu.SetActive(false);
+    }
+
     public void ResetTheGame()
     {
         Time.timeScale = 1f;
@@ -180,6 +207,10 @@ public class PauseMenu : MonoBehaviour
 
     public void QuitGame()
     {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
         Application.Quit();
+#endif
     }
 }
