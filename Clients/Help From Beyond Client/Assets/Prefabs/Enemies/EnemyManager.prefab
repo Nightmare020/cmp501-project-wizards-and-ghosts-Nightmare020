@@ -138,12 +138,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23d300093e6043f79ab1a6d4b298a643, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wizzardEnemy: {fileID: 7597357977944865230, guid: 88adf6946a47b7147b2b29baee48cc47, type: 3}
-  GhostEnemy: {fileID: 4726947774725663321, guid: b60ae154869e34848aeb42a3372d419b, type: 3}
-  spawnsGhostEnemies: {fileID: 4392499094564588203}
-  spawnsWizzardEnemies: {fileID: 0}
-  maxGhostEnemies: 3
-  maxWizzardEnemies: 1
+  enemy: {fileID: 4726947774725663321, guid: b60ae154869e34848aeb42a3372d419b, type: 3}
+  spawnsEnemies: {fileID: 4392499094564588203}
+  maxEnemies: 2
   minSpawnDistance: 2
 --- !u!1 &4392499093924391186
 GameObject:

@@ -150,7 +150,7 @@ public class PlayerManager : NetworkBehaviour
                 wizard.SetActive(false);
                 ghost.SetActive(true);
                 dead.SetActive(false);
-                cameraFollow.m_Target = transform;
+                cameraFollow.m_Target = null;
                 break;
             case PlayerState.Dead:
                 isDead = true;
