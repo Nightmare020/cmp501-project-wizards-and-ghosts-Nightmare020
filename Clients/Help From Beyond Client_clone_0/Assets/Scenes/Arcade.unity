@@ -11307,13 +11307,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemyManager
       objectReference: {fileID: 0}
+    - target: {fileID: 4392499093792874934, guid: 8da059d6a76d899489d79c5907757a68, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4392499093792874935, guid: 8da059d6a76d899489d79c5907757a68, type: 3}
       propertyPath: enemy
       value: 
       objectReference: {fileID: 4726947774725663321, guid: b60ae154869e34848aeb42a3372d419b, type: 3}
     - target: {fileID: 4392499093792874935, guid: 8da059d6a76d899489d79c5907757a68, type: 3}
       propertyPath: maxEnemies
-      value: 5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4392499093792874935, guid: 8da059d6a76d899489d79c5907757a68, type: 3}
       propertyPath: spawnsEnemies

@@ -26,15 +26,6 @@ public class ManualPlayerSpawner : MonoBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
 
             Debug.Log("ManualPlayerSpawner is now listening for client connections");
-
-            // Get reference to spawn point manager
-            //_startingPoints = FindObjectOfType<PlayersStartingPoints>();
-            //if (_startingPoints == null)
-            //{
-            //    Debug.LogError("Starting points not found in scene.");
-            //}
-
-            //Debug.Log("Manual player spawner is now listening for client connections");
         }
     }
 
@@ -80,7 +71,15 @@ public class ManualPlayerSpawner : MonoBehaviour
             return;
         }
 
-        playerInstance.transform.position = points[index].localPosition;
+        Vector3 worldSpawn = points[index].position;
+        worldSpawn.z = 0f; // Ensure z position is 0
+        playerInstance.transform.position = worldSpawn;
+
+        var rigidbody = playerInstance.GetComponent<Rigidbody2D>();
+        if (rigidbody != null)
+        {
+            rigidbody.velocity = Vector2.zero;
+        }
 
         playerInstance.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
 

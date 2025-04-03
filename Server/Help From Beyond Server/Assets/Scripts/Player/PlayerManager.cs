@@ -19,6 +19,11 @@ public class PlayerManager : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    public NetworkVariable<Vector4> cameraBounds = new NetworkVariable<Vector4>(
+        new Vector4(0, 0, 0, 0),
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Owner);
+
     [SerializeField] private GameObject wizard, ghost, dead;
     [NonSerialized] public Camera _camera;
     [NonSerialized] public CameraShake cameraShake;
@@ -57,9 +62,6 @@ public class PlayerManager : NetworkBehaviour
         // If value already available, apply it
         OnPlayerStateChanged(PlayerState.Wizard, currentState.Value);
 
-        // Initialize player state as Wizard
-        //SetCurrentState(currentState.Value);
-
         // Enable control over the wizard player
         if (IsOwner)
         {
@@ -67,7 +69,7 @@ public class PlayerManager : NetworkBehaviour
         }
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
         currentState.OnValueChanged -= OnPlayerStateChanged;
     }
@@ -98,14 +100,16 @@ public class PlayerManager : NetworkBehaviour
 
     public PlayerManager GetOtherPlayer()
     {
-        if (otherPlayer == null)
+        if (otherPlayer != null) return otherPlayer;
+
+
+        foreach (PlayerManager player in FindObjectsOfType<PlayerManager>())
         {
-            foreach (PlayerManager player in FindObjectsOfType<PlayerManager>())
+            // Make sure it's not self, and it's spawned
+            if (player != this && player.IsSpawned)
             {
-                if (player != this)
-                {
-                    otherPlayer = player;
-                }
+                otherPlayer = player;
+                break;
             }
         }
 
@@ -117,6 +121,29 @@ public class PlayerManager : NetworkBehaviour
         if (Time.frameCount % 10 == 0 && transform.position.y < -45)
         {
             Die();
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (!IsOwner || currentState.Value != PlayerState.Wizard) return;
+
+        Camera wizardCam = _camera;
+        if (!wizardCam) return;
+
+        Vector3 bottomLeft = wizardCam.ViewportToWorldPoint(new Vector3(0, 0));
+        Vector3 topRight = wizardCam.ViewportToWorldPoint(new Vector3(1, 1));
+
+        Vector4 newBounds = new Vector4(
+            bottomLeft.x,
+            bottomLeft.y,
+            topRight.x,
+            topRight.y
+        );
+
+        if (Vector4.Distance(cameraBounds.Value, newBounds) > 0.01f)
+        {
+            cameraBounds.Value = newBounds;
         }
     }
 

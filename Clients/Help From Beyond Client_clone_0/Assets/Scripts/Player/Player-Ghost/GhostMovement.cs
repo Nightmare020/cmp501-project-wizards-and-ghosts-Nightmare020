@@ -100,16 +100,31 @@ public class GhostMovement : NetworkBehaviour
 
     void LateUpdate()
     {
-        if (!IsOwner) return;
+        //if (!IsOwner) return;
 
-        _screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
+        var wizard = _ghostValues._playerManager.GetOtherPlayer();
+        if (wizard == null || wizard.cameraFollow == null) return;
+
+        Vector4 bounds = wizard.cameraBounds.Value;
+        if (bounds == Vector4.zero) return;
+
         Vector3 viewPos = transform.root.position;
+        float width = _objectWidth;
+        float heigth = _objectHeight;
 
-        _upperBound = new Vector2(_screenBounds.x - _objectWidth, _screenBounds.y - _objectHeight);
-        _lowerBound = new Vector2(_screenBounds.x - ((_screenBounds.x - Camera.main.transform.position.x) * 2) + _objectWidth, _screenBounds.y - ((_screenBounds.y - Camera.main.transform.position.y) * 2) + _objectHeight);
+        viewPos.x = Mathf.Clamp(viewPos.x, bounds.x + width, bounds.y - width);
+        viewPos.y = Mathf.Clamp(viewPos.y, bounds.z + heigth, bounds.w - heigth);
 
-        viewPos.x = Mathf.Clamp(viewPos.x, _screenBounds.x - ((_screenBounds.x - Camera.main.transform.position.x) * 2) + _objectWidth, _screenBounds.x - _objectWidth);
-        viewPos.y = Mathf.Clamp(viewPos.y, _screenBounds.y - ((_screenBounds.y - Camera.main.transform.position.y) * 2) + _objectHeight, _screenBounds.y - _objectHeight);
+        // Get world bounds from wizard's camera
+        //_screenBounds = wizardCam.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, wizardCam.transform.position.z));
+        //_screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
+        //Vector3 viewPos = transform.root.position;
+
+        //_upperBound = new Vector2(_screenBounds.x - _objectWidth, _screenBounds.y - _objectHeight);
+        //_lowerBound = new Vector2(_screenBounds.x - ((_screenBounds.x - Camera.main.transform.position.x) * 2) + _objectWidth, _screenBounds.y - ((_screenBounds.y - Camera.main.transform.position.y) * 2) + _objectHeight);
+
+        //viewPos.x = Mathf.Clamp(viewPos.x, _screenBounds.x - ((_screenBounds.x - Camera.main.transform.position.x) * 2) + _objectWidth, _screenBounds.x - _objectWidth);
+        //viewPos.y = Mathf.Clamp(viewPos.y, _screenBounds.y - ((_screenBounds.y - Camera.main.transform.position.y) * 2) + _objectHeight, _screenBounds.y - _objectHeight);
         transform.root.position = viewPos;
     }
 
