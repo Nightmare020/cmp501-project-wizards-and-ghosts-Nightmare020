@@ -39,27 +39,23 @@ public class PlayerManager : NetworkBehaviour
         _rigidBody2D = GetComponent<Rigidbody2D>();
     }
 
+    public void SetInitialPlayerState(PlayerState state)
+    {
+        currentState.Value = state;
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        // Get the PlayerStartingPoints component from the scene
-        PlayersStartingPoints startingPointsComponent = FindObjectOfType<PlayersStartingPoints>();
-        if (startingPointsComponent != null)
-        {
-            List<Transform> startingPoints = startingPointsComponent.GetStartingPoints();
-            // Set the player's starting position
-            if (startingPoints != null && startingPoints.Count > 0)
-            {
-                transform.position = startingPoints[0].localPosition; // Use the first starting point for now
-            }
-        }
-
         // Initialize player state as Wizard
-        SetCurrentState(PlayerState.Wizard);
+        SetCurrentState(currentState.Value);
 
         // Enable control over the wizard player
-        EnableControl();
+        if (IsOwner)
+        {
+            EnableControl();
+        }
     }
 
     private void EnableControl()
@@ -69,7 +65,15 @@ public class PlayerManager : NetworkBehaviour
         MyInputManager inputManager = GetComponent<MyInputManager>();
         if (inputManager != null)
         {
-            inputManager.SetInputMap(CurrentInputState.Wizard);
+            switch (currentState.Value)
+            {
+                case PlayerState.Wizard:
+                    inputManager.SetInputMap(CurrentInputState.Wizard);
+                    break;
+                case PlayerState.Ghost:
+                    inputManager.SetInputMap(CurrentInputState.Ghost);
+                    break;
+            }
         }
     }
 
