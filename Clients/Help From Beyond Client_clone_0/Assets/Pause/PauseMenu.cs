@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public class PauseMenu : MonoBehaviour
     public GameObject tutorialMenu;
     public bool isPaused;
     private bool showingTutorials;
+
     [SerializeField] private List<Image> buttonImages;
     [SerializeField] private List<Sprite> pressedSprites, normalSprites;
 
@@ -48,17 +50,14 @@ public class PauseMenu : MonoBehaviour
             {
                 if (selectedIndex == 0)
                 {
-                    ResumeGame();
+                    ResumeGame(true);
+                    ResumeGame(false);
                 }
                 else if (selectedIndex == 1)
                 {
                     ShowTutorial();
                 }
                 else if (selectedIndex == 2)
-                {
-                    ResetTheGame();
-                }
-                else if (selectedIndex == 3)
                 {
                     QuitGame();
                 }
@@ -71,7 +70,8 @@ public class PauseMenu : MonoBehaviour
                 }
                 else
                 {
-                    ResumeGame();
+                    ResumeGame(true);
+                    ResumeGame(false);
                 }
             }
         }
@@ -157,25 +157,44 @@ public class PauseMenu : MonoBehaviour
             _wizardInputManager = myInputManager;
         }
 
-        pauseMenu.alpha = 1;
-        Time.timeScale = 0f;
-        isPaused = true;
+        ShowPauseUI();
+
+        // Notify server
+        SetPauseStateServerRpc(true, isGhost ? PlayerState.Ghost : PlayerState.Wizard);
     }
 
-    public void ResumeGame()
+    public void ResumeGame(bool isGhost)
     {
         if (_ghostInputManager)
         {
-            _ghostInputManager.SetInputMap(CurrentInputState.Ghost);
+            _ghostInputManager.SetInputMap(isGhost ? CurrentInputState.Ghost : CurrentInputState.Wizard);
         }
 
         if (_wizardInputManager)
         {
-            _wizardInputManager.SetInputMap(CurrentInputState.Wizard);
+            _wizardInputManager.SetInputMap(isGhost ? CurrentInputState.Ghost : CurrentInputState.Wizard);
         }
 
+        HidePauseUI();
+
+        // Determine current role
+        PlayerState role = (_ghostInputManager != null && _ghostInputManager.enabled)
+            ? PlayerState.Ghost
+            : PlayerState.Wizard;
+
+        // Notify server
+        SetPauseStateServerRpc(false, role);
+    }
+
+    private void ShowPauseUI()
+    {
+        pauseMenu.alpha = 1;
+        isPaused = true;
+    }
+
+    private void HidePauseUI()
+    {
         pauseMenu.alpha = 0;
-        Time.timeScale = 1f;
         isPaused = false;
     }
 
@@ -193,18 +212,6 @@ public class PauseMenu : MonoBehaviour
         tutorialMenu.SetActive(false);
     }
 
-    public void ResetTheGame()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    public void GoToMainMenu()
-    {
-        Time.timeScale = 1f;
-        Debug.Log("Go to main menu");
-    }
-
     public void QuitGame()
     {
 #if UNITY_EDITOR
@@ -212,5 +219,23 @@ public class PauseMenu : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPauseStateServerRpc(bool paused, PlayerState state)
+    {
+        NetworkPauseManager.Instance?.SetPauseState(paused, state);
+
+        // Inform other clients to show the UI
+        TogglePauseMenuClientRpc(paused);
+    }
+
+    [ClientRpc]
+    private void TogglePauseMenuClientRpc(bool paused)
+    {
+        if (NetworkManager.Singleton.IsServer) return;
+
+        if (paused) ShowPauseUI();
+        else HidePauseUI();
     }
 }

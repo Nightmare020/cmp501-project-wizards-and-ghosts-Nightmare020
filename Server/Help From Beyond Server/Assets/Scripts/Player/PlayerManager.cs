@@ -51,6 +51,11 @@ public class PlayerManager : NetworkBehaviour
     public void SetInitialPlayerState(PlayerState state)
     {
         currentState.Value = state;
+
+        if (IsOwner && IsClient && PlayerRoleTracker.Instance != null)
+        {
+            PlayerRoleTracker.Instance.registerRoleServerRpc(state);
+        }
     }
 
     public override void OnNetworkSpawn()
@@ -126,7 +131,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (!(IsOwner || (IsServer && currentState.Value != PlayerState.Wizard))) return;
+        if (!IsOwner) return;
 
         Camera wizardCam = _camera;
         if (!wizardCam) return;
