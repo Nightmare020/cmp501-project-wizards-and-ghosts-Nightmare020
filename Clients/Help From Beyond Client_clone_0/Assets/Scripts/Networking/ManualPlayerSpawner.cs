@@ -7,12 +7,16 @@ using UnityEngine;
 public class ManualPlayerSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject playerPrefab;
+    [SerializeField] private GameObject pauseManagerPrefab;
+    [SerializeField] private GameObject roleTrackerPrefab;
 
     private PlayersStartingPoints _startingPoints;
     private bool isListening = false;
 
     // Track if the main player has already been spawned
     private bool hasSpawnedMainPlayer = false;
+    private bool hasSpawnedPauseManager = false;
+    private bool hasSpawnedRoleTracker = false;
 
     private List<ulong> connectedClients = new List<ulong>();
 
@@ -43,6 +47,23 @@ public class ManualPlayerSpawner : MonoBehaviour
 
         connectedClients.Add(clientId);
         int index = connectedClients.Count - 1;
+
+        // Spawn pause manager
+        if (!hasSpawnedPauseManager && pauseManagerPrefab != null)
+        {
+            GameObject pauseManagerInstance = Instantiate(pauseManagerPrefab);
+            pauseManagerInstance.GetComponent<NetworkObject>().Spawn();
+            hasSpawnedPauseManager = true;
+            Debug.Log("Spawned NetworkPauseManager");
+        }
+
+        if (!hasSpawnedRoleTracker && roleTrackerPrefab != null)
+        {
+            GameObject roleTrackerInstance = Instantiate(roleTrackerPrefab);
+            roleTrackerInstance.GetComponent<NetworkObject>().Spawn();
+            hasSpawnedRoleTracker = true;
+            Debug.Log("Spawned RoleTracker");
+        }
 
         if (_startingPoints == null)
         {

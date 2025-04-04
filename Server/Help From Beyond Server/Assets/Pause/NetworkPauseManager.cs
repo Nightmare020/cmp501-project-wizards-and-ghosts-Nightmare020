@@ -7,17 +7,10 @@ public class NetworkPauseManager : NetworkBehaviour
 {
     public static NetworkPauseManager Instance;
 
-    private NetworkVariable<bool> wizardPaused = new NetworkVariable<bool>(
+    private NetworkVariable<bool> isGamePaused = new NetworkVariable<bool>(
         value: false,
         readPerm: NetworkVariableReadPermission.Everyone,
         writePerm: NetworkVariableWritePermission.Server);
-
-    private NetworkVariable<bool> ghostPaused = new NetworkVariable<bool>(
-            value: false,
-            readPerm: NetworkVariableReadPermission.Everyone,
-            writePerm: NetworkVariableWritePermission.Server);
-
-    public bool IsGamePaused => wizardPaused.Value && ghostPaused.Value;
 
     public override void OnNetworkSpawn()
     {
@@ -26,26 +19,25 @@ public class NetworkPauseManager : NetworkBehaviour
             Instance = this;
         }
 
-        wizardPaused.OnValueChanged += OnPauseChanged;
-        ghostPaused.OnValueChanged += OnPauseChanged;
-    }
+        // Callbacks when multiple sources affect pause
+        isGamePaused.OnValueChanged += OnPauseStateChanged;
 
-    public void SetPauseState(bool paused, PlayerState state)
-    {
-        if (!IsServer) return;
-
-        if (state == PlayerState.Wizard)
+        // Ensure the correct time scale when joining
+        if (!IsServer)
         {
-            wizardPaused.Value = paused;
-        }
-        else if (state == PlayerState.Ghost)
-        {
-            ghostPaused.Value = paused;
+            Time.timeScale = isGamePaused.Value ? 0 : 1;
         }
     }
 
-    private void OnPauseChanged(bool previousValue, bool newValue)
+    private void OnPauseStateChanged(bool oldValue, bool newValue)
     {
-        Time.timeScale = IsGamePaused ? 0 : 1;
+        // Run on both server and clients
+        Time.timeScale = newValue ? 0 : 1;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SetPauseStateServerRpc(bool paused)
+    {
+        isGamePaused.Value = paused;
     }
 }

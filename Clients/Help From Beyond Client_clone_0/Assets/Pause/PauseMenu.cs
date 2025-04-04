@@ -34,24 +34,26 @@ public class PauseMenu : MonoBehaviour
             _ghostInputManager = GetGhostInputs();
         }
 
-        if (isPaused && (_wizardInputManager || _ghostInputManager))
+        if (isPaused)
         {
-            if (_wizardInputManager.NavigationRight() /*|| _ghostInputManager.NavigationRight()*/)
+            if (_wizardInputManager && _wizardInputManager.NavigationRight() 
+                || _ghostInputManager && _ghostInputManager.NavigationRight())
             {
                 SelectNext();
                 HighLightButtons();
             }
-            else if (_wizardInputManager.NavigationLeft() /*|| _ghostInputManager.NavigationLeft()*/)
+            else if (_wizardInputManager && _wizardInputManager.NavigationLeft() 
+                || _ghostInputManager && _ghostInputManager.NavigationLeft())
             {
                 SelectPrev();
                 HighLightButtons();
             }
-            else if (_wizardInputManager.NavigationSelect() /*|| _ghostInputManager.NavigationSelect()*/)
+            else if (_wizardInputManager && _wizardInputManager.NavigationSelect() 
+                || _ghostInputManager && _ghostInputManager.NavigationSelect())
             {
                 if (selectedIndex == 0)
                 {
-                    ResumeGame(true);
-                    ResumeGame(false);
+                    ResumeGame();
                 }
                 else if (selectedIndex == 1)
                 {
@@ -62,7 +64,8 @@ public class PauseMenu : MonoBehaviour
                     QuitGame();
                 }
             }
-            else if (_wizardInputManager.NavigationPause() /*|| _ghostInputManager.NavigationPause()*/)
+            else if (_wizardInputManager && _wizardInputManager.NavigationPause() 
+                || _ghostInputManager && _ghostInputManager.NavigationPause())
             {
                 if (showingTutorials)
                 {
@@ -70,8 +73,7 @@ public class PauseMenu : MonoBehaviour
                 }
                 else
                 {
-                    ResumeGame(true);
-                    ResumeGame(false);
+                    ResumeGame();
                 }
             }
         }
@@ -160,39 +162,34 @@ public class PauseMenu : MonoBehaviour
         ShowPauseUI();
 
         // Notify server
-        SetPauseStateServerRpc(true, isGhost ? PlayerState.Ghost : PlayerState.Wizard);
+        NetworkPauseManager.Instance?.SetPauseStateServerRpc(true);
     }
 
-    public void ResumeGame(bool isGhost)
+    public void ResumeGame()
     {
         if (_ghostInputManager)
         {
-            _ghostInputManager.SetInputMap(isGhost ? CurrentInputState.Ghost : CurrentInputState.Wizard);
+            _ghostInputManager.SetInputMap(CurrentInputState.Ghost);
         }
 
         if (_wizardInputManager)
         {
-            _wizardInputManager.SetInputMap(isGhost ? CurrentInputState.Ghost : CurrentInputState.Wizard);
+            _wizardInputManager.SetInputMap(CurrentInputState.Ghost);
         }
 
         HidePauseUI();
 
-        // Determine current role
-        PlayerState role = (_ghostInputManager != null && _ghostInputManager.enabled)
-            ? PlayerState.Ghost
-            : PlayerState.Wizard;
-
         // Notify server
-        SetPauseStateServerRpc(false, role);
+        NetworkPauseManager.Instance?.SetPauseStateServerRpc(false);
     }
 
-    private void ShowPauseUI()
+    public void ShowPauseUI()
     {
         pauseMenu.alpha = 1;
         isPaused = true;
     }
 
-    private void HidePauseUI()
+    public void HidePauseUI()
     {
         pauseMenu.alpha = 0;
         isPaused = false;
@@ -219,23 +216,5 @@ public class PauseMenu : MonoBehaviour
 #else
         Application.Quit();
 #endif
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void SetPauseStateServerRpc(bool paused, PlayerState state)
-    {
-        NetworkPauseManager.Instance?.SetPauseState(paused, state);
-
-        // Inform other clients to show the UI
-        TogglePauseMenuClientRpc(paused);
-    }
-
-    [ClientRpc]
-    private void TogglePauseMenuClientRpc(bool paused)
-    {
-        if (NetworkManager.Singleton.IsServer) return;
-
-        if (paused) ShowPauseUI();
-        else HidePauseUI();
     }
 }
