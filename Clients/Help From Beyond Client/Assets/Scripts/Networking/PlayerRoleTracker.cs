@@ -7,8 +7,18 @@ public class PlayerRoleTracker : NetworkBehaviour
 {
     public static PlayerRoleTracker Instance;
 
-    public ulong WizardClientID { get; private set; } = ulong.MaxValue;
-    public ulong GhostClientID { get; private set; } = ulong.MaxValue;
+    private NetworkVariable<ulong> wizardClientID = new NetworkVariable<ulong>(
+        ulong.MaxValue,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
+    private NetworkVariable<ulong> ghostClientID = new NetworkVariable<ulong>(
+        ulong.MaxValue,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
+    public ulong WizardClientID => wizardClientID.Value;
+    public ulong GhostClientID => ghostClientID.Value;
 
     public bool IsLocalWizard => NetworkManager.Singleton.LocalClientId == WizardClientID;
     public bool IsLocalGhost => NetworkManager.Singleton.LocalClientId == GhostClientID;
@@ -22,17 +32,19 @@ public class PlayerRoleTracker : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void registerRoleServerRpc(PlayerState role, ServerRpcParams serverRpcParams = default)
+    public void RegisterRoleServerRpc(PlayerState role, ServerRpcParams rpcParams = default)
     {
-        ulong clientId = serverRpcParams.Receive.SenderClientId;
+        ulong senderId = rpcParams.Receive.SenderClientId;
 
-        if (role == PlayerState.Wizard)
+        if (role == PlayerState.Wizard && wizardClientID.Value == ulong.MaxValue)
         {
-            WizardClientID = clientId;
+            wizardClientID.Value = senderId;
+            Debug.Log($"[RoleTracker] Registered Wizard: {senderId}");
         }
-        else if (role == PlayerState.Ghost)
+        else if (role == PlayerState.Ghost && ghostClientID.Value == ulong.MaxValue)
         {
-            GhostClientID = clientId;
+            ghostClientID.Value = senderId;
+            Debug.Log($"[RoleTracker] Registered Ghost: {senderId}");
         }
     }
 }
