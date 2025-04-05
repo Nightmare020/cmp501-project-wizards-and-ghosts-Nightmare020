@@ -4,7 +4,7 @@ using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
 
-public class ManualPlayerSpawner : MonoBehaviour
+public class ManualObjectSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject pauseManagerPrefab;
@@ -107,5 +107,23 @@ public class ManualPlayerSpawner : MonoBehaviour
         var playerManager = playerInstance.GetComponent<PlayerManager>();
         var role = index == 0 ? PlayerState.Wizard : PlayerState.Ghost;
         playerManager.SetInitialPlayerState(role);
+
+        // register the role on the server immediately
+        var roleTracker = FindObjectOfType<PlayerRoleTracker>();
+        if (roleTracker != null && roleTracker.IsServer)
+        {
+            if (role == PlayerState.Wizard)
+            {
+                roleTracker.RegisterWizard(clientId);
+            }
+            else
+            {
+                roleTracker.RegisterGhost(clientId);
+            }
+        }
+        else
+        {
+            Debug.LogError("RoleTracker not found");
+        }
     }
 }

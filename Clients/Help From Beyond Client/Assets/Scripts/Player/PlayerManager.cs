@@ -64,12 +64,6 @@ public class PlayerManager : NetworkBehaviour
         // If value already available, apply it
         OnPlayerStateChanged(PlayerState.Wizard, currentState.Value);
 
-        // register role on server from client that owns this player
-        if (IsClient && PlayerRoleTracker.Instance != null)
-        {
-            PlayerRoleTracker.Instance.RegisterRoleServerRpc(currentState.Value);
-        }
-
         // Enable control over the wizard player
         if (IsOwner)
         {

@@ -31,20 +31,33 @@ public class PlayerRoleTracker : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void RegisterRoleServerRpc(PlayerState role, ServerRpcParams rpcParams = default)
+    public void RegisterWizard(ulong clientId)
     {
-        ulong senderId = rpcParams.Receive.SenderClientId;
-
-        if (role == PlayerState.Wizard && wizardClientID.Value == ulong.MaxValue)
+        if (wizardClientID.Value != ulong.MaxValue)
         {
-            wizardClientID.Value = senderId;
-            Debug.Log($"[RoleTracker] Registered Wizard: {senderId}");
+            Debug.LogWarning($"[RoleTracker] Wizard already registered: {wizardClientID.Value}");
+            return;
         }
-        else if (role == PlayerState.Ghost && ghostClientID.Value == ulong.MaxValue)
+
+        if (wizardClientID.Value == ulong.MaxValue)
         {
-            ghostClientID.Value = senderId;
-            Debug.Log($"[RoleTracker] Registered Ghost: {senderId}");
+            wizardClientID.Value = clientId;
+            Debug.Log($"[RoleTracker] Registered Wizard: {clientId}");
+        }
+    }
+
+    public void RegisterGhost(ulong clientId)
+    {
+        if (ghostClientID.Value != ulong.MaxValue)
+        {
+            Debug.LogWarning($"[RoleTracker] Ghost already registered: {ghostClientID.Value}");
+            return;
+        }
+
+        if (ghostClientID.Value == ulong.MaxValue)
+        {
+            ghostClientID.Value = clientId;
+            Debug.Log($"[RoleTracker] Registered Ghost: {clientId}");
         }
     }
 }

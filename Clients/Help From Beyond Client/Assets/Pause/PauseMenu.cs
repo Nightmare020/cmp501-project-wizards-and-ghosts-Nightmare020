@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,6 +12,14 @@ public class PauseMenu : MonoBehaviour
     private MyInputManager _ghostInputManager, _wizardInputManager;
     public CanvasGroup pauseMenu;
     public GameObject tutorialMenu;
+    public GameObject GameOverPanel;
+    public GameObject GameWinPanel;
+    public GameObject GamePointsPanel;
+    public GameObject GameTimePanel;
+
+    [SerializeField] private TMP_Text _totalPoints;
+    [SerializeField] private TMP_Text _totalTime;
+
     public bool isPaused;
     private bool showingTutorials;
 
@@ -208,6 +217,55 @@ public class PauseMenu : MonoBehaviour
         showingTutorials = false;
         tutorialMenu.SetActive(false);
     }
+
+    public void ShowGameOver()
+    {
+        Debug.Log("Show game over");
+        GameOverPanel.SetActive(true);
+    }
+
+    public void HideGameOver()
+    {
+        Debug.Log("Hide tutorial");
+        GameOverPanel.SetActive(false);
+    }
+
+    public void ShowWinGame()
+    {
+        Debug.Log("Show game win");
+        GameWinPanel.SetActive(true);
+    }
+
+    public void HideWinGame()
+    {
+        Debug.Log("Hide game win");
+        GameWinPanel.SetActive(false);
+    }
+
+    public void ShowTotalPoints()
+    {
+        Debug.Log("Show tutorial");
+        GamePointsPanel.SetActive(true);
+    }
+
+    public void HideTotalPoints()
+    {
+        Debug.Log("Hide tutorial");
+        GamePointsPanel.SetActive(false);
+    }
+
+    public void ShowTotalTime()
+    {
+        Debug.Log("Show tutorial");
+        GameTimePanel.SetActive(true);
+    }
+
+    public void HideTotalTime()
+    {
+        Debug.Log("Hide tutorial");
+        GameTimePanel.SetActive(false);
+    }
+
 
     public void QuitGame()
     {

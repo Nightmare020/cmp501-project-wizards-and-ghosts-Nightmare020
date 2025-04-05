@@ -68,7 +68,7 @@ public class MatchmakingServer : NetworkBehaviour
         // Notify character selection class that a match was found
         UnityMainThreadDispatcher.Instance.Enqueue(() =>
         {
-            SelectionWizardGhost.NotifyPlayerFound(true);
+            //SelectionWizardGhost.NotifyPlayerFound(true);
         });
     }
 

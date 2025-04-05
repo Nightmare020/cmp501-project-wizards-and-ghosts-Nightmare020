@@ -205,14 +205,7 @@ public class SelectionWizardGhost : MonoBehaviour
 
     public void AddPlayer(MyInputManager playerInputManager)
     {
-        players.Add(playerInputManager);
         int index = players.Count - 1;
-        if (players.Count == 2)
-            playerRolPosition.Add(playerRolPosition[0]);
-        else
-            playerRolPosition.Add(0);
-
-        playerManagers.Add(playerInputManager.transform.GetComponent<PlayerManager>());
         playerImages[index].color = Color.green;
 
         //update the player count
@@ -221,21 +214,7 @@ public class SelectionWizardGhost : MonoBehaviour
 
     public void RemovePlayer(MyInputManager myInputManager)
     {
-        int deletedPlayerIndex = players.FindIndex(x => x == myInputManager);
-        players.RemoveAt(deletedPlayerIndex);
-        playerManagers.RemoveAt(deletedPlayerIndex);
-        playerRolPosition.RemoveAt(deletedPlayerIndex);
         playerImages[players.Count].color = Color.white;
-        foreach (var image in playerImages)
-        {
-            Vector2 newPos = new Vector2(originalImageX, image.transform.position.y);
-            image.transform.position = newPos;
-        }
-
-        for (int i = 0; i < playerRolPosition.Count; i++)
-        {
-            playerRolPosition[i] = 0;
-        }
 
         //update the player count
         ShowUI();
@@ -246,42 +225,7 @@ public class SelectionWizardGhost : MonoBehaviour
 
     public void PlayerAccept()
     {
-        if (players.Count == 1 && inputEnabled)
-        {
-            // Determine the role based on local selection (Wizard = 1, Ghost = -1)
-            int role = playerRolPosition[0];
-
-            if (role == 1)
-            {
-                SetWizardOrGhost(1);
-            }
-            else if (role == -1)
-            {
-                SetWizardOrGhost(-1);
-            }
-            else
-            {
-                Debug.LogError("Ivalid role selected: " + role);
-                return;
-            }
-
-            // Determine the role based on player selection
-            string roleString = role == 1 ? "Wizard" : "Ghost";
-            Debug.Log($"Player selected role: {roleString}");
-
-            // Send role to the server for matchmaking
-            _matchmakingClient.SelectRole(roleString);
-
-            // Show "Searchin for other player" UI
-            SearchOtherPlayer(false);
-
-            //HideUI();
-            print("Accepted");
-        }
-        else
-        {
-            Debug.LogWarning("Player selection invalid or input disabled");
-        }
+        
     }
 
     public void SelectLeft(MyInputManager myInputManager)
@@ -332,14 +276,10 @@ public class SelectionWizardGhost : MonoBehaviour
         if (role == 1)
         {
             Debug.Log("Setting player as Wizard");
-            players[0].SetInputMap(CurrentInputState.Wizard);
-            playerManagers[0].SetCurrentState(PlayerState.Wizard);
         }
         else if (role == -1)
         {
             Debug.Log("Setting player as Ghost");
-            players[0].SetInputMap(CurrentInputState.Ghost);
-            playerManagers[0].SetCurrentState(PlayerState.Ghost);
         }
         else
         {
