@@ -85,19 +85,7 @@ public class MatchmakingClient : NetworkBehaviour
         // Notify character selection class that a match was found
         UnityMainThreadDispatcher.Instance.Enqueue(() =>
         {
-            SelectionWizardGhost.NotifyPlayerFound(true);
+            //SelectionWizardGhost.NotifyPlayerFound(true);
         });
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void RequestPlayerSpawnServerRpc(string role, ServerRpcParams rpcParams = default)
-    {
-        ulong clientId = rpcParams.Receive.SenderClientId;
-        GameObject newPlayer = Instantiate(NetworkManager.Singleton.NetworkConfig.PlayerPrefab);
-        NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
-        networkObject.SpawnAsPlayerObject(clientId);
-
-        // Assign role to the new player
-        newPlayer.GetComponent<PlayerManager>().SetCurrentState(role == "Wizard" ? PlayerState.Wizard : PlayerState.Ghost);
     }
 }

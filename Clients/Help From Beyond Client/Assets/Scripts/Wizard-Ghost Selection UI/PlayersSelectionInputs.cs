@@ -11,11 +11,15 @@ public class PlayersSelectionInputs : MonoBehaviour
         _input = FindObjectOfType<MyInputManager>();
     }
 
+    private void Start()
+    {
+        _selectionPanel.Initialize(_input);
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if (_selectionPanel && _selectionPanel.inputEnabled)
+        if (_selectionPanel)
         {
             //confirm
             if (_input.NavigationSelect())
@@ -26,13 +30,13 @@ public class PlayersSelectionInputs : MonoBehaviour
             //left 
             if (_input.NavigationLeft())
             {
-                _selectionPanel.SelectLeft(_input);
+                _selectionPanel.SelectLeft();
             }
 
             //right
             if (_input.NavigationRight())
             {
-                _selectionPanel.SelectRight(_input);
+                _selectionPanel.SelectRight();
             }
             //exit
         }

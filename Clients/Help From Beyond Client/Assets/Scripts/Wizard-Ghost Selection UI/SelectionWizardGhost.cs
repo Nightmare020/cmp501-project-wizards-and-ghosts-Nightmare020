@@ -9,281 +9,59 @@ using UnityEngine.UI;
 
 public class SelectionWizardGhost : MonoBehaviour
 {
-    // Start is called before the first frame update
-    private List<MyInputManager> players;
-    private MyInputManager player;
-    private List<int> playerRolPosition;
-    private List<PlayerManager> playerManagers;
-    private PlayerManager playerManager;
-    private CanvasGroup _canvasGroup;
-    private bool otherPlayerFound;
-    private Coroutine searchPlayerTextCoroutine;
-    private Coroutine foundPlayerTextCoroutine;
     [SerializeField] private TMP_Text selectPlayerText;
-    [SerializeField] private TMP_Text searchForPlayersText;
-    [SerializeField] private TMP_Text playerFoundText;
-    [SerializeField] private List<Image> playerImages;
+    [SerializeField] private Image playerImage;
     [SerializeField] private Transform wizardX, ghostX;
-    private MatchmakingClient _matchmakingClient;
-
-    //inputs
-    public bool inputEnabled;
-
-    // Create event-based system for when other player is found
-    public delegate void PlayerFoundEventHandler(bool found);
-    public static event PlayerFoundEventHandler OnPlayerFoundChanged;
-
-    //accept image
     [SerializeField] private CanvasGroup acceptImageCanvas;
-    private float originalImageX;
 
-    private void Awake()
+    private MyInputManager player;
+    private int selectedRole = 0; // 1 = Wizard, -1 = Ghost, 0 = None
+
+    public void Initialize(MyInputManager inputManager)
     {
-        //players = new List<MyInputManager>();
-        //playerRolPosition = new List<int>();
-        //playerManagers = new List<PlayerManager>();
-        //_canvasGroup = GetComponent<CanvasGroup>();
-        //originalImageX = playerImages[0].transform.position.x;
-        //UpdateAcceptImage();
-    }
-
-    // Start is called before the first frame update
-    private void Start()
-    {
-        //_matchmakingClient = MatchmakingClient.Instance;
-
-        // Initialize the player and playerManager objects
-        player = FindObjectOfType<MyInputManager>();
-        playerManager = player.GetComponent<PlayerManager>();
-
-        if (player != null && playerManager != null)
-        {
-            Debug.Log("Setting player as Wizard");
-            player.SetInputMap(CurrentInputState.Wizard);
-            playerManager.SetCurrentState(PlayerState.Wizard);
-        }
-        else
-        {
-            Debug.LogError("Player or PlayerManager not found");
-        }
-    }
-
-    public void ShowUI()
-    {
-        _canvasGroup.alpha = 1;
-        _canvasGroup.interactable = true;
-        _canvasGroup.blocksRaycasts = true;
-        inputEnabled = true;
-        UpdateAcceptImage();
-    }
-
-    // Call thos method when OtherPlayerFound changes
-    public void UpdateOtherPlayerFound (bool playerFound)
-    {
-        otherPlayerFound = playerFound;
-        OnPlayerFoundChanged?.Invoke(playerFound);
-    }
-
-    // Subscribe to event
-    private void OnEnable()
-    {
-        SelectionWizardGhost.OnPlayerFoundChanged += SearchOtherPlayer;
-    }
-
-    private void OnDisable()
-    {
-        SelectionWizardGhost.OnPlayerFoundChanged -= SearchOtherPlayer;
-    }
-
-    public void SearchOtherPlayer(bool playerFound)
-    {
-        UnityMainThreadDispatcher.Instance.Enqueue( () =>
-        {
-            try
-            {
-                // Set the other player found global variable to the delegate variable
-                otherPlayerFound = playerFound;
-
-                if (!otherPlayerFound)
-                {
-                    selectPlayerText.gameObject.SetActive(false);
-                    playerFoundText.gameObject.SetActive(false);
-                    searchForPlayersText.gameObject.SetActive(true);
-
-                    // Start a loading animation coroutine
-                    if (searchPlayerTextCoroutine == null)
-                    {
-                        // Start corroutine for dor loop
-                        searchPlayerTextCoroutine = StartCoroutine(LoadingSearchForPlayerText());
-                    }
-                }
-                else
-                {
-                    // Stop the corroutine and reset the text
-                    if (searchPlayerTextCoroutine != null)
-                    {
-                        StopCoroutine(searchPlayerTextCoroutine);
-                        searchPlayerTextCoroutine = null;
-                    }
-
-                    // Show player found text, and start the game
-                    selectPlayerText.gameObject.SetActive(false);
-                    searchForPlayersText.gameObject.SetActive(false);
-                    playerFoundText.gameObject.SetActive(true);
-
-                    if (foundPlayerTextCoroutine == null)
-                    {
-                        foundPlayerTextCoroutine = StartCoroutine(LoadingLevel());
-                    }
-
-                    // Start a courutine to wait a few seconds to load the game and then start it
-                    StartCoroutine(LoadAndHideUI());
-                }
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"An error occurred in SearchOtherPlayer: {ex.Message}\n{ex.StackTrace}");
-            }
-        });
-    }
-
-    private IEnumerator LoadingSearchForPlayerText()
-    {
-        int dotCount = 0;
-
-        while (!otherPlayerFound)
-        {
-            // Update text with dots
-            searchForPlayersText.text = searchForPlayersText.text.TrimEnd('.') + new string('.', dotCount);
-
-            // Increment dot count, looping back to 0 after 3
-            dotCount = (dotCount + 1) % 4;
-
-            // Wait 0.5 secs before updating again
-            yield return new WaitForSeconds(0.5f); 
-        }
-    }
-
-    private IEnumerator LoadingLevel()
-    {
-        int dotCount = 0;
-
-        while (true)
-        {
-            // Update text with dots
-            playerFoundText.text = playerFoundText.text.TrimEnd('.') + new string('.', dotCount);
-
-            // Increment dot count, looping back to 0 after 3
-            dotCount = (dotCount + 1) % 4;
-
-            // Wait 0.5 secs before updating again
-            yield return new WaitForSeconds(0.5f);
-        }
-    }
-
-    public static void NotifyPlayerFound(bool found)
-    {
-        OnPlayerFoundChanged?.Invoke(found);
-    }
-
-    private IEnumerator LoadAndHideUI()
-    {
-        // Wait for seconds
-        yield return new WaitForSeconds(12f);
-
-        // Hide UI
-        HideUI();
-    }
-
-    private void HideUI()
-    {
-        _canvasGroup.alpha = 0;
-        _canvasGroup.interactable = false;
-        _canvasGroup.blocksRaycasts = false;
-        inputEnabled = false;
-    }
-
-    public void AddPlayer(MyInputManager playerInputManager)
-    {
-        int index = players.Count - 1;
-        playerImages[index].color = Color.green;
-
-        //update the player count
-        UpdateAcceptImage();
-    }
-
-    public void RemovePlayer(MyInputManager myInputManager)
-    {
-        playerImages[players.Count].color = Color.white;
-
-        //update the player count
-        ShowUI();
-        UpdateAcceptImage();
-    }
-
-    #region player inputs
-
-    public void PlayerAccept()
-    {
-        
-    }
-
-    public void SelectLeft(MyInputManager myInputManager)
-    {
-        int playerIndex = players.FindIndex(x => x == myInputManager);
-        playerRolPosition[playerIndex] = 1;
-        Vector2 newPos = new Vector2(wizardX.position.x, playerImages[playerIndex].transform.position.y);
-        playerImages[playerIndex].transform.position = newPos;
-        UpdateAcceptImage();
-    }
-
-    public void SelectRight(MyInputManager myInputManager)
-    {
-        int playerIndex = players.FindIndex(x => x == myInputManager);
-        playerRolPosition[playerIndex] = -1;
-        Vector2 newPos = new Vector2(ghostX.position.x, playerImages[playerIndex].transform.position.y);
-        playerImages[playerIndex].transform.position = newPos;
-        UpdateAcceptImage();
-    }
-
-    #endregion
-
-
-    public void UpdateAcceptImage()
-    {
-        if (players.Count == 1 && inputEnabled && (playerRolPosition[0] == -1 || playerRolPosition[0] == 1))
-        {
-            ShowAcceptText();
-        }
-        else
-        {
-            HideAcceptText();
-        }
-    }
-
-    public void ShowAcceptText()
-    {
-        acceptImageCanvas.alpha = 1;
-    }
-
-    public void HideAcceptText()
-    {
+        player = inputManager;
+        selectedRole = 0;
+        playerImage.color = Color.white;
         acceptImageCanvas.alpha = 0;
     }
 
-    public void SetWizardOrGhost(int role)
+    public void SelectLeft()
     {
-        if (role == 1)
-        {
-            Debug.Log("Setting player as Wizard");
-        }
-        else if (role == -1)
-        {
-            Debug.Log("Setting player as Ghost");
-        }
-        else
-        {
-            throw new NotImplementedException();
-        }
+        selectedRole = 1; // Wizard
+        MovePlayerImageTo(wizardX);
+    }
+
+    public void SelectRight()
+    {
+        selectedRole = -1; // Ghost
+        MovePlayerImageTo(ghostX);
+    }
+
+    public void PlayerAccept()
+    {
+        Debug.Log("Player Accept Selection");
+    }
+
+    private void MovePlayerImageTo(Transform target)
+    {
+        Vector2 newPos = new Vector2(target.position.x, playerImage.transform.position.y);
+        playerImage.transform.position = newPos;
+        playerImage.color = Color.green;
+        UpdateAcceptImage();
+    }
+
+    private void UpdateAcceptImage()
+    {
+        acceptImageCanvas.alpha = selectedRole != 0 ? 1 : 0;
+    }
+
+    public int GetSelectedRole()
+    {
+        return selectedRole;
+    }
+
+    public bool HasMadeSelection()
+    {
+        return selectedRole != 0;
     }
 }
