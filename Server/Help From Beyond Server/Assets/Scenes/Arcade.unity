@@ -18142,7 +18142,7 @@ GameObject:
   - component: {fileID: 840762070}
   - component: {fileID: 840762071}
   m_Layer: 0
-  m_Name: PlayerSpawner
+  m_Name: NetworkObjectsSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
