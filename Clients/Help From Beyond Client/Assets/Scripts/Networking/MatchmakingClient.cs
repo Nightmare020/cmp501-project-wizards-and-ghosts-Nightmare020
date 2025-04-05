@@ -87,9 +87,6 @@ public class MatchmakingClient : NetworkBehaviour
         {
             SelectionWizardGhost.NotifyPlayerFound(true);
         });
-
-        // Spawn the player on the server
-        RequestPlayerSpawnServerRpc(role);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -103,16 +100,4 @@ public class MatchmakingClient : NetworkBehaviour
         // Assign role to the new player
         newPlayer.GetComponent<PlayerManager>().SetCurrentState(role == "Wizard" ? PlayerState.Wizard : PlayerState.Ghost);
     }
-
-    //private void SpawnPlayer(string role)
-    //{
-    //    if (NetworkManager.Singleton.IsClient) 
-    //    {
-    //        Debug.Log("Spawning player on server...");
-
-    //        // Get the local player instance and set the role
-    //        PlayerManager localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerManager>();
-    //        localPlayer.SetCurrentState(role == "Wizard" ? PlayerState.Wizard : PlayerState.Ghost);
-    //    }
-    //}
 }
