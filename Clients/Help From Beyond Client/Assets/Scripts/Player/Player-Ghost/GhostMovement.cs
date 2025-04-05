@@ -14,7 +14,6 @@ public class GhostMovement : NetworkBehaviour
     private float _objectHeight;
 
     private Vector2 _cachedInput;
-    private float speed = 0;
 
     private void Start()
     {
@@ -50,13 +49,15 @@ public class GhostMovement : NetworkBehaviour
 
     private void MoveGhost(Vector2 direction, float strength)
     {
-        if (direction == Vector2.zero) return;
+        if (direction == Vector2.zero)
+        {
+            _ghostValues.rigidBody.velocity = Vector2.zero;
+            return;
+        }
 
         float speed = _ghostValues.moveSpeed;
         Vector2 desiredVelocity = direction.normalized * strength * speed;
-        Vector2 velocityDiff = desiredVelocity - _ghostValues.rigidBody.velocity;
-
-        _ghostValues.rigidBody.AddForce(velocityDiff);
+        _ghostValues.rigidBody.velocity = desiredVelocity;
     }
 
     private void UpdateFacingDirection(Vector2 input)

@@ -14,7 +14,6 @@ public class ManualPlayerSpawner : MonoBehaviour
     private bool isListening = false;
 
     // Track if the main player has already been spawned
-    private bool hasSpawnedMainPlayer = false;
     private bool hasSpawnedPauseManager = false;
     private bool hasSpawnedRoleTracker = false;
 

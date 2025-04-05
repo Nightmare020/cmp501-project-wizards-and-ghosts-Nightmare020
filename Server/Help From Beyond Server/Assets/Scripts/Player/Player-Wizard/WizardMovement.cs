@@ -9,14 +9,12 @@ public class WizardMovement : NetworkBehaviour
     private WizardValues _wizardValues;
     private float _gamePadAddedSpeed;
     private MyInputManager _inputs;
-    private float speed = 0;
     private CameraShake _cameraShake;
 
     // actions performed
     private bool dashPerformed = false;
 
     //jump things
-    private bool jumping;
     private bool falling;
 
     //dash timer
@@ -158,7 +156,6 @@ public class WizardMovement : NetworkBehaviour
             : _wizardValues.jumpForce;
 
         _wizardValues.rigidBody.AddForce(Vector2.up * force, ForceMode2D.Impulse);
-        jumping = true;
     }
 
     private void ResetDoubleJump()

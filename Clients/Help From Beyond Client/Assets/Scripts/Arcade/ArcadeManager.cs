@@ -36,10 +36,6 @@ public class ArcadeManager : MonoBehaviour
     //points
     private int wizardPoints = 0, ghostPoints = 0;
 
-    //save data
-    private JsonSaving _jsonSaving;
-    private SaveData _saveData;
-
     //timer
     private MyStopwatch timer;
     [SerializeField] private float maxTime = 60f;
@@ -50,8 +46,6 @@ public class ArcadeManager : MonoBehaviour
     private void Awake()
     {
         timer = gameObject.AddComponent<MyStopwatch>();
-        _jsonSaving = FindObjectOfType<JsonSaving>();
-        //_saveData = _jsonSaving._saveData;
     }
 
     void Start()
@@ -203,8 +197,6 @@ public class ArcadeManager : MonoBehaviour
 
     public void GameOver()
     {
-        _saveData.SetCurrentArcadePoints(ghostPoints + wizardPoints);
-        _jsonSaving.SaveTheData();
         MySceneLoader.LoadArcadeEndScreen();
     }
 

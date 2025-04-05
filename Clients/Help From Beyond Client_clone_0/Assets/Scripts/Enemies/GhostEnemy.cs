@@ -8,7 +8,6 @@ public class GhostEnemy : MonoBehaviour
     private SpriteRenderer _spriteRenderer;
     private Collider2D _collider2D;
 
-    Camera camera;
     private bool dead = false;
 
     [SerializeField] private Vector2 direction = new Vector2(1, 0);
@@ -22,7 +21,6 @@ public class GhostEnemy : MonoBehaviour
 
     void Start()
     {
-        camera = Camera.main;
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _collider2D = GetComponent<Collider2D>();
