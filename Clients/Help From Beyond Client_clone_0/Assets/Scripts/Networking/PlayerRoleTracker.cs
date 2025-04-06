@@ -23,8 +23,6 @@ public class PlayerRoleTracker : NetworkBehaviour
     public bool IsLocalWizard => NetworkManager.Singleton.LocalClientId == WizardClientID;
     public bool IsLocalGhost => NetworkManager.Singleton.LocalClientId == GhostClientID;
 
-    private Dictionary<ulong, PlayerRole> playerRoles = new();
-
     public override void OnNetworkSpawn()
     {
         if (Instance == null)
@@ -62,24 +60,4 @@ public class PlayerRoleTracker : NetworkBehaviour
             Debug.Log($"[RoleTracker] Registered Ghost: {clientId}");
         }
     }
-
-    public void StorePlayerRole(ulong clientId, PlayerRole role)
-    {
-        if (!playerRoles.ContainsKey(clientId))
-        {
-            playerRoles.Add(clientId, role);
-        }
-        else
-        {
-            playerRoles[clientId] = role;
-        }
-    }
-
-    public PlayerRole GetPlayerRole(ulong clientId)
-    {
-        return playerRoles.TryGetValue(clientId, out var role) ? role : PlayerRole.None;
-    }
-
-    public bool HasWizard() => playerRoles.ContainsValue(PlayerRole.Wizard);
-    public bool HasGhost() => playerRoles.ContainsValue(PlayerRole.Ghost);
 }

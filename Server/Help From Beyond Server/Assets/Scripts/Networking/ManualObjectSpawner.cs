@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -104,23 +103,27 @@ public class ManualObjectSpawner : MonoBehaviour
 
         playerInstance.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
 
-        // Role logic: depending on role selected from menu
-        PlayerRole role = PlayerRole.None;
-
-        var roleTracker = FindObjectOfType<PlayerRoleTracker>();
-
-        if (roleTracker != null)
-        {
-            role = roleTracker.GetPlayerRole(clientId);
-        }
-
-        if (role == PlayerRole.None)
-        {
-            Debug.LogError($"Role not found for client {clientId}");
-            return;
-        }
-
+        // Role logic: index 0 = wizard, index 1 = ghost
         var playerManager = playerInstance.GetComponent<PlayerManager>();
-        playerManager.SetInitialPlayerState((PlayerState)Enum.Parse(typeof(PlayerState), role.ToString()));
+        var role = index == 0 ? PlayerState.Wizard : PlayerState.Ghost;
+        playerManager.SetInitialPlayerState(role);
+
+        // register the role on the server immediately
+        var roleTracker = FindObjectOfType<PlayerRoleTracker>();
+        if (roleTracker != null && roleTracker.IsServer)
+        {
+            if (role == PlayerState.Wizard)
+            {
+                roleTracker.RegisterWizard(clientId);
+            }
+            else
+            {
+                roleTracker.RegisterGhost(clientId);
+            }
+        }
+        else
+        {
+            Debug.LogError("RoleTracker not found");
+        }
     }
 }

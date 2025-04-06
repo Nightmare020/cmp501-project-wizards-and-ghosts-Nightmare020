@@ -9,7 +9,6 @@ using UnityEngine.UI;
 
 public class SelectionWizardGhost : MonoBehaviour
 {
-    [SerializeField] private GameObject selectorCanvas;
     [SerializeField] private TMP_Text selectPlayerText;
     [SerializeField] private Image playerImage;
     [SerializeField] private Transform wizardX, ghostX;
@@ -40,21 +39,7 @@ public class SelectionWizardGhost : MonoBehaviour
 
     public void PlayerAccept()
     {
-        if (!HasMadeSelection()) return;
-        
-        PlayerRole selected = selectedRole == 1 ? PlayerRole.Wizard : PlayerRole.Ghost;
-        PlayerPrefs.SetInt("PlayerRole", (int)selected);
-
-        Debug.Log($"Player selected: {selected}, connecting...");
-
-        // Connect to server
-        GameNetworkManager.Instance.ConnectAsClient();
-
-        // Hide the UI after selecting
-        if (selectorCanvas != null)
-        {
-            selectorCanvas.SetActive(false);
-        }
+        Debug.Log("Player Accept Selection");
     }
 
     private void MovePlayerImageTo(Transform target)

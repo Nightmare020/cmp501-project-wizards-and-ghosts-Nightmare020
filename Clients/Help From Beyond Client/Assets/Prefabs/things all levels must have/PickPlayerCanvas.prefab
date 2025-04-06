@@ -1416,8 +1416,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77e4ca877f13c0743a703b9b9e8d2542, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectorCanvas: {fileID: 5828659329681152927}
-  selectPlayerText: {fileID: 5935666052667064596}
+  selectPlayerText: {fileID: 0}
   playerImage: {fileID: 4627498730102771751}
   wizardX: {fileID: 5388213360589315489}
   ghostX: {fileID: 6874372683943657040}
