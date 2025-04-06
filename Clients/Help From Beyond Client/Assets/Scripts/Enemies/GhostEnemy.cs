@@ -1,7 +1,8 @@
 
+using Unity.Netcode;
 using UnityEngine;
 
-public class GhostEnemy : MonoBehaviour
+public class GhostEnemy : NetworkBehaviour
 {
     // Start is called before the first frame update
     private Rigidbody2D _rigidbody2D;
@@ -36,6 +37,8 @@ public class GhostEnemy : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!IsServer ||dead) return;
+
         if (Time.frameCount % 10 == 0)
         {
             if (_wizardValues && !_wizardValues.transform.parent.CompareTag("ActiveWizard"))
@@ -112,6 +115,8 @@ public class GhostEnemy : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
+        if (!IsServer) return;
+
         if (!GetGhost()._playerManager.isDead && other.gameObject.CompareTag("ActiveWizard"))
         {
             Die();
@@ -163,6 +168,8 @@ public class GhostEnemy : MonoBehaviour
 
     public void Die()
     {
+        if (!IsServer) return;
+
         dead = true;
         _spriteRenderer.color = Color.clear;
         _rigidbody2D.simulated = false;
@@ -180,7 +187,7 @@ public class GhostEnemy : MonoBehaviour
 
     private void OnBecameInvisible()
     {
-        if (dead)
+        if (IsServer && dead)
         {
             Activate();
         }

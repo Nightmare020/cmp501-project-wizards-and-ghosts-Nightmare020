@@ -9,6 +9,7 @@ public class ManualObjectSpawner : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject pauseManagerPrefab;
     [SerializeField] private GameObject roleTrackerPrefab;
+    [SerializeField] private GameObject enemyManagerPrefab;
 
     private PlayersStartingPoints _startingPoints;
     private bool isListening = false;
@@ -62,6 +63,13 @@ public class ManualObjectSpawner : MonoBehaviour
             roleTrackerInstance.GetComponent<NetworkObject>().Spawn();
             hasSpawnedRoleTracker = true;
             Debug.Log("Spawned RoleTracker");
+        }
+
+        if (NetworkManager.Singleton.IsServer && enemyManagerPrefab != null)
+        {
+            GameObject enemyManagerInstance = Instantiate(enemyManagerPrefab);
+            enemyManagerInstance.GetComponent<NetworkObject>().Spawn();
+            Debug.Log("Spawned EnemyManager on server");
         }
 
         if (_startingPoints == null)

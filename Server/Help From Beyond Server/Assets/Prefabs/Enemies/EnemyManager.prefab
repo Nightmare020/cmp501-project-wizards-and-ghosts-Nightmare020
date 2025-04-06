@@ -103,6 +103,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4392499093792874928}
   - component: {fileID: 4392499093792874935}
+  - component: {fileID: 2013501285030876598}
   m_Layer: 0
   m_Name: EnemyManager
   m_TagString: Untagged
@@ -140,8 +141,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemy: {fileID: 4726947774725663321, guid: b60ae154869e34848aeb42a3372d419b, type: 3}
   spawnsEnemies: {fileID: 4392499094564588203}
-  maxEnemies: 2
+  maxEnemies: 5
   minSpawnDistance: 2
+--- !u!114 &2013501285030876598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4392499093792874934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 951099334
+  AlwaysReplicateAsRoot: 0
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &4392499093924391186
 GameObject:
   m_ObjectHideFlags: 0
