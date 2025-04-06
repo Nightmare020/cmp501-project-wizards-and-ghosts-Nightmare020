@@ -515,7 +515,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b0748eba0f9b8a489649e869bc86d68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ghostVisionTransform: {fileID: 8610665590736290276}
 --- !u!114 &4035409913952007637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -977,6 +976,7 @@ GameObject:
   - component: {fileID: 2597758119109256581}
   - component: {fileID: 6154273773458866488}
   - component: {fileID: 8530181566562538980}
+  - component: {fileID: 6872537249319156154}
   - component: {fileID: 7231328292045201685}
   - component: {fileID: 8121545236976703992}
   - component: {fileID: 1971785144229129622}
@@ -1174,6 +1174,18 @@ MonoBehaviour:
   isDead: 0
   _spriteRendererWizard: {fileID: 1415462225}
   startingPoints: []
+--- !u!114 &6872537249319156154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2597758119109256577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8da92c319382af3418df5047c2229ab4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &7231328292045201685
 MonoBehaviour:
   m_ObjectHideFlags: 0
