@@ -21,6 +21,7 @@ public class PauseMenu : MonoBehaviour
 
     public bool isPaused;
     private bool showingTutorials;
+    private bool resumeEnabled = true;
 
     [SerializeField] private List<Image> buttonImages;
     [SerializeField] private List<Sprite> pressedSprites, normalSprites;
@@ -59,7 +60,7 @@ public class PauseMenu : MonoBehaviour
             else if (_wizardInputManager && _wizardInputManager.NavigationSelect() 
                 || _ghostInputManager && _ghostInputManager.NavigationSelect())
             {
-                if (selectedIndex == 0)
+                if (selectedIndex == 0 && resumeEnabled)
                 {
                     ResumeGame();
                 }
@@ -79,7 +80,7 @@ public class PauseMenu : MonoBehaviour
                 {
                     HideTutorial();
                 }
-                else
+                else if (resumeEnabled)
                 {
                     ResumeGame();
                 }
@@ -263,7 +264,7 @@ public class PauseMenu : MonoBehaviour
 #endif
     }
 
-    public void ShowGameOverStuff(int totalPoints, int totalTimeSeconds)
+    public void ShowGameOverStuff(int totalPoints, int totalTimeMinutes, int totalTimeSeconds)
     {
         ShowPauseUI(); // makes sure the pause menu canvas is visible
 
@@ -271,10 +272,20 @@ public class PauseMenu : MonoBehaviour
         GamePointsPanel.SetActive(true);
         GameTimePanel.SetActive(true);
 
+        resumeEnabled = false;
+
+        // Dim the resume button visually
+        if (buttonImages.Count > 0 && buttonImages[0] != null)
+        {
+            var color = buttonImages[0].color;
+            color.a = 0.5f;
+            buttonImages[0].color = color;
+        }
+
         if (_totalPoints != null)
-            _totalPoints.text = $"{totalPoints} points";
+            _totalPoints.text = $"{totalPoints} PTS";
 
         if (_totalTime != null)
-            _totalTime.text = $"{totalTimeSeconds} sec";
+            _totalTime.text = $"{totalTimeMinutes} : {totalTimeSeconds}";
     }
 }
