@@ -40,6 +40,12 @@ public class SelectionWizardGhost : MonoBehaviour
     public void PlayerAccept()
     {
         Debug.Log("Player Accept Selection");
+
+        // Hide UI
+        gameObject.SetActive(false);
+
+        // Inititate connection to server with selected role
+        GameNetworkManager.Instance.ConnectAsRole(selectedRole);
     }
 
     private void MovePlayerImageTo(Transform target)

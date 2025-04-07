@@ -6,11 +6,17 @@ using UnityEngine;
 
 public class GameNetworkManager : MonoBehaviour
 {
+    public static GameNetworkManager Instance;
+
     public string serverIP = "127.0.0.1"; // Local server for testing
     public ushort serverPort = 7777; // Default Netcode port
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    public void ConnectAsRole(int selectedRole)
     {
         var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
