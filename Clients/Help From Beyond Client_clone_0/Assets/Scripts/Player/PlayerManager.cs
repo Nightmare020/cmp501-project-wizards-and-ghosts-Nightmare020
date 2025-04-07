@@ -60,7 +60,9 @@ public class PlayerManager : NetworkBehaviour
         currentState.OnValueChanged += OnPlayerStateChanged;
 
         // If value already available, apply it
-        OnPlayerStateChanged(PlayerState.Wizard, currentState.Value);
+        //OnPlayerStateChanged(PlayerState.Wizard, currentState.Value);
+
+        ForceStateSync();
 
         // Enable control over the wizard player
         if (IsOwner)
@@ -76,7 +78,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void OnPlayerStateChanged(PlayerState oldState, PlayerState newState)
     {
-        SetCurrentState(newState);
+        ApplyVisualState(newState);
     }
 
     private void EnableControl()
@@ -116,6 +118,12 @@ public class PlayerManager : NetworkBehaviour
         return otherPlayer;
     }
 
+    public void ForceStateSync()
+    {
+        // Force the update (visuals, objects)
+        SetCurrentState(currentState.Value);
+    }
+
     private void Update()
     {
         if (Time.frameCount % 10 == 0 && transform.position.y < -45)
@@ -149,10 +157,22 @@ public class PlayerManager : NetworkBehaviour
 
     public void SetCurrentState(PlayerState playerState)
     {
+        // Prevent feedback loop or redundant assignment
+        if (IsServer && currentState.Value != playerState)
+        {
+            currentState.Value = playerState;
+            return; // clients will sync on value change
+        }
+
+        // Update local visuals regardless
+        ApplyVisualState(playerState);
+    }
+
+    private void ApplyVisualState(PlayerState playerState)
+    {
         switch (playerState)
         {
             case PlayerState.Wizard:
-                currentState.Value = playerState;
                 Debug.Log("Setting tag to ActiveWizard");
                 tag = "ActiveWizard";
                 Debug.Log("Tag Wizard set successfully");
@@ -167,7 +187,6 @@ public class PlayerManager : NetworkBehaviour
                 break;
 
             case PlayerState.Ghost:
-                currentState.Value = playerState;
                 Debug.Log("Setting tag to ActiveGhost");
                 tag = "ActiveGhost";
                 Debug.Log("Tag Ghost set successfully");
@@ -205,15 +224,16 @@ public class PlayerManager : NetworkBehaviour
 
     public void Die()
     {
+        if (!IsServer) return;
+
         if (GetOtherPlayer().GetComponent<PlayerManager>().isDead)
         {
             //game over
             ArcadeManager.Instance?.TriggerGameOver();
         }
-        else
-        {
-            SetCurrentState(PlayerState.Dead);
-        }
+
+        // Ensure the NetworkVariable is changed
+        currentState.Value = PlayerState.Dead;
     }
 
     public void Die(Vector2 pos)
@@ -224,11 +244,11 @@ public class PlayerManager : NetworkBehaviour
             Debug.Log("Both players dead — triggering game over");
             ArcadeManager.Instance?.TriggerGameOver();
         }
-        else
-        {
-            transform.position = pos;
-            SetCurrentState(PlayerState.Dead);
-        }
+
+        transform.position = pos;
+
+        // Ensure the NetworkVariable is changed
+        currentState.Value = PlayerState.Dead;
     }
 
     IEnumerator InvulnerabilityCoroutine(float seconds)

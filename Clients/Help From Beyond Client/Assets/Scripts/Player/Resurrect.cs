@@ -54,6 +54,8 @@ public class Resurrect : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (_playerManager == null || _playerManager.GetOtherPlayer() == null) return;
+
         if (_playerManager.GetOtherPlayer())
         {
             float distance = -Vector2.Distance(_playerManager.otherPlayer.transform.position, referencePoint.position);
