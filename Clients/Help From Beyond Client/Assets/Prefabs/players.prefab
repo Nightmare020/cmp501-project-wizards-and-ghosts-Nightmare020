@@ -120,7 +120,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c26a2820f352ba14f98bbe7ceb993f5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wizardValues: {fileID: 2597758118102961658}
 --- !u!70 &3001444583300916763
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -515,7 +514,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b0748eba0f9b8a489649e869bc86d68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ghostVisionTransform: {fileID: 8610665590736290276}
 --- !u!114 &4035409913952007637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1410,8 +1408,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 23226069
-  m_SortingLayer: 0
+  m_SortingLayerID: 634630641
+  m_SortingLayer: 8
   m_SortingOrder: 0
   m_Sprite: {fileID: 518062248, guid: fbe134eec600eef49bf3aefcb91c701b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1509,7 +1507,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3de8aae9f684ba43bac239929ba6cca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerManager: {fileID: 0}
+  _playerManager: {fileID: 8530181566562538980}
   ground:
     serializedVersion: 2
     m_Bits: 8
@@ -2577,7 +2575,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
-  m_SortingLayerID: -1958257721
+  m_SortingLayerID: -181087643
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &2673737343272625960
@@ -2691,8 +2689,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1958257721
-  m_SortingLayer: 0
+  m_SortingLayerID: -181087643
+  m_SortingLayer: 9
   m_SortingOrder: 0
   m_Sprite: {fileID: 1479349807, guid: 30749d0250181d94299b62a47b5a85bc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

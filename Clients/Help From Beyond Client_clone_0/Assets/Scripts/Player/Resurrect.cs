@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,11 +19,13 @@ public class Resurrect : MonoBehaviour
     private List<Transform> _spawnPoints;
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private List<Sprite> treeSprites;
-    private float spritePercent = 0;
+
+    private float _spritePercent = 0;
+    private PlayerManager _cachedOtherPlayer;
 
     void Awake()
     {
-        spritePercent = 1f / treeSprites.Count;
+        _spritePercent = 1f / treeSprites.Count;
         _spawnPoints = new List<Transform>();
         foreach (var spawn in GameObject.FindGameObjectsWithTag("Respawn"))
         {
@@ -54,26 +57,41 @@ public class Resurrect : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (_playerManager == null || _playerManager.GetOtherPlayer() == null) return;
+        if (_playerManager == null) return;
 
-        if (_playerManager.GetOtherPlayer())
+        // Try to cache the other player once found
+        if (_cachedOtherPlayer == null)
         {
-            float distance = -Vector2.Distance(_playerManager.otherPlayer.transform.position, referencePoint.position);
-            if (distance < min)
+            _cachedOtherPlayer = _playerManager.GetOtherPlayer();
+            if (_cachedOtherPlayer != null)
             {
-                sliderCanvas.alpha = 0;
+                return;
             }
-            else
+        }
+
+        float distance = -Vector2.Distance(_playerManager.otherPlayer.transform.position, referencePoint.position);
+        if (distance < min)
+        {
+            sliderCanvas.alpha = 0;
+        }
+        else
+        {
+            sliderCanvas.alpha = Mathf.Clamp01(MyUtils.Normalice(distance, min, max));
+            value += Time.fixedDeltaTime * factor;
+            _slider.value = Mathf.Clamp01(value);
+
+            int idx = Mathf.Min(Mathf.FloorToInt(value / _spritePercent), treeSprites.Count - 1);
+            _spriteRenderer.sprite = treeSprites[idx];
+
+            if (value >= 1)
             {
-                sliderCanvas.alpha = Mathf.Clamp01(MyUtils.Normalice(distance, min, max));
-                value += Time.fixedDeltaTime * factor;
-                _slider.value = Mathf.Clamp01(value);
-                int idx = Mathf.Min(Mathf.FloorToInt(value / spritePercent), treeSprites.Count - 1);
-                _spriteRenderer.sprite = treeSprites[idx];
-                if (value >= 1)
+                _spriteRenderer.sprite = treeSprites[0];
+                value = 0;
+
+                // Trigger resurrection only on the server
+                if (NetworkManager.Singleton.IsServer)
                 {
-                    _spriteRenderer.sprite = treeSprites[0];
-                    value = 0;
+                    // Resurrect the other player
                     _playerManager.Resurrect();
                 }
             }

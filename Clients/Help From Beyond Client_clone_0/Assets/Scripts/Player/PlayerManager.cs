@@ -218,7 +218,13 @@ public class PlayerManager : NetworkBehaviour
 
     public void Resurrect()
     {
-        SetCurrentState(currentState.Value);
+        if (!IsServer) return;
+
+        Vector2 spawnPos = GetSafeSpawnNearWizard();
+
+        transform.position = spawnPos;
+
+        SetCurrentState(PlayerState.Ghost);
         StartCoroutine(InvulnerabilityCoroutine(3));
     }
 
@@ -249,6 +255,23 @@ public class PlayerManager : NetworkBehaviour
 
         // Ensure the NetworkVariable is changed
         currentState.Value = PlayerState.Dead;
+    }
+
+    private Vector2 GetSafeSpawnNearWizard()
+    {
+        Vector2 wizardPos = GetOtherPlayer()?.transform.position ?? transform.position;
+        Vector2 candidate = wizardPos + UnityEngine.Random.insideUnitCircle.normalized * 3f;
+
+        // Avoid spawning near ghosts
+        foreach (var ghostEnemy in GameObject.FindGameObjectsWithTag("Ghost Enemy"))
+        {
+            if (Vector2.Distance(ghostEnemy.transform.position, candidate) < 2f)
+            {
+                candidate += UnityEngine.Random.insideUnitCircle.normalized * 2f;
+            }
+        }
+
+        return candidate;
     }
 
     IEnumerator InvulnerabilityCoroutine(float seconds)

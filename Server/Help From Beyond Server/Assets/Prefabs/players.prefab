@@ -120,7 +120,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c26a2820f352ba14f98bbe7ceb993f5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wizardValues: {fileID: 2597758118102961658}
 --- !u!70 &3001444583300916763
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -515,7 +514,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b0748eba0f9b8a489649e869bc86d68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ghostVisionTransform: {fileID: 8610665590736290276}
 --- !u!114 &4035409913952007637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -975,7 +973,6 @@ GameObject:
   - component: {fileID: 2597758119109256579}
   - component: {fileID: 2597758119109256576}
   - component: {fileID: 2597758119109256581}
-  - component: {fileID: 6154273773458866488}
   - component: {fileID: 1334003489671196893}
   - component: {fileID: 7231328292045201685}
   - component: {fileID: 8121545236976703992}
@@ -1138,18 +1135,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &6154273773458866488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2597758119109256577}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fc02bf798bf45341a1ec660b7f8a7cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1334003489671196893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1516,7 +1501,9 @@ MonoBehaviour:
   sliderCanvas: {fileID: 8085473950270864954}
   _slider: {fileID: 1664692923940354499}
   min: -2
+  max: -1
   referencePoint: {fileID: 2704282611139068719}
+  factor: 0.1
   _spriteRenderer: {fileID: 7934350925554400155}
   treeSprites:
   - {fileID: 518062248, guid: fbe134eec600eef49bf3aefcb91c701b, type: 3}
