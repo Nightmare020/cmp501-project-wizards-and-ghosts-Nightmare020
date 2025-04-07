@@ -221,6 +221,7 @@ public class PlayerManager : NetworkBehaviour
         if (GetOtherPlayer().GetComponent<PlayerManager>().isDead)
         {
             //game over
+            Debug.Log("Both players dead — triggering game over");
             ArcadeManager.Instance?.TriggerGameOver();
         }
         else
