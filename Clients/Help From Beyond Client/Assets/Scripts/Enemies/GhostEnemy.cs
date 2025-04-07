@@ -105,6 +105,11 @@ public class GhostEnemy : NetworkBehaviour
                     direction = (_wizardValues.transform.position - transform.position).normalized;
                 }
 
+                // Sync movement direction visuals to clients
+                bool flipX = _rigidbody2D.velocity.x < 0;
+                bool isAngry = _ghostValues._playerManager.isDead;
+                SyncVisualsClientRpc(flipX, isAngry);
+
                 _rigidbody2D.AddForce(direction * speed - _rigidbody2D.velocity);
             }
         }
@@ -187,10 +192,19 @@ public class GhostEnemy : NetworkBehaviour
     }
 
     [ClientRpc]
+    private void SyncVisualsClientRpc(bool flipX, bool isAngry)
+    {
+        _spriteRenderer.flipX = flipX;
+        _spriteRenderer.color = isAngry ? angerColor : Color.white;
+    }
+
+    [ClientRpc]
     private void DieClientRpc()
     {
         // Show "death" visuals on all clients
         _spriteRenderer.color = Color.clear;
+        _rigidbody2D.simulated = false;
+        _collider2D.enabled = false;
     }
 
     private void Activate()
