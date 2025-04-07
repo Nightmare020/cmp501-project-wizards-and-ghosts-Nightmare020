@@ -1,7 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
 using TMPro;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class ArcadeManager : NetworkBehaviour
 {
@@ -57,23 +56,17 @@ public class ArcadeManager : NetworkBehaviour
     {
         if (gameOverTriggered) return;
         gameOverTriggered = true;
-
-        int finalScore = wizardScore.Value;
-        int totalTime = Mathf.FloorToInt(elapsedTime);
-
-        ShowGameOverClientRpc(finalScore, totalTime);
+        ShowGameOverClientRpc(wizardScore.Value, Mathf.FloorToInt(elapsedTime));
     }
 
 
     [ClientRpc]
-    private void ShowGameOverClientRpc(int score, int seconds)
+    private void ShowGameOverClientRpc(int finalScore, int totalTime)
     {
-        Debug.Log($"[Client] Game Over UI: score={score}, time={seconds}");
-
         var pauseMenu = FindObjectOfType<PauseMenu>();
         if (pauseMenu != null)
         {
-            pauseMenu.ShowGameOverStuff(score, seconds);
+            pauseMenu.ShowGameOverStuff(finalScore, totalTime);
         }
         else
         {
