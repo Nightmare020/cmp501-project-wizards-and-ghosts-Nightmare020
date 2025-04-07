@@ -873,8 +873,8 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
-  m_SortingLayerID: 17929771
-  m_SortingOrder: 11
+  m_SortingLayerID: -91065865
+  m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &2679770289091560250
 MonoBehaviour:
@@ -926,6 +926,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2679770289363890867}
   - component: {fileID: 2679770289363890860}
+  - component: {fileID: 6443414645468809625}
   m_Layer: 0
   m_Name: Arcade Stuff
   m_TagString: Untagged
@@ -962,25 +963,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ab99e414955abd41baad57768f6c29b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wizardCoinsContainer: {fileID: 0}
-  ghostCoinsContainer: {fileID: 0}
-  wizardCoinsSpawnPoints: {fileID: 0}
-  ghostCoinsSpawnPoints: {fileID: 0}
-  maxWizardCoins: 50
-  maxGhostCoins: 30
-  wizardCoinTemplate: {fileID: 2945149072824141446, guid: 14095e3fdf1b8b245b58758ee3479ef6, type: 3}
-  ghostCoinTemplate: {fileID: 95742377013887080, guid: f40a5a06cc8a3534e9979adf3b306979, type: 3}
-  wizardCoinCountText: {fileID: 2679770289408682222}
-  wizardCoinCountTextHud: {fileID: 614083307}
-  ghostCoinCountText: {fileID: 0}
-  ghostCoinCountTextHud: {fileID: 1667791396}
-  totalPointsText: {fileID: 2945837514603040907}
-  ghostCoinClue: {fileID: 0}
-  wizardCoinClue: {fileID: 0}
-  maxTime: 60
-  timeText: {fileID: 0}
-  _emerginPointsPool: {fileID: 0}
-  pointsOffset: {x: 0, y: 0, z: 0}
+  liveScoreText: {fileID: 2679770289408682222}
+--- !u!114 &6443414645468809625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2679770289363890866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 951099334
+  AlwaysReplicateAsRoot: 0
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &2679770289408682220
 GameObject:
   m_ObjectHideFlags: 0
@@ -1047,7 +1046,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 50/50
+  m_text: ???
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 47a0c975f429ca44199ac513215827ce, type: 2}
   m_sharedMaterial: {fileID: -3594940514892261028, guid: 47a0c975f429ca44199ac513215827ce, type: 2}

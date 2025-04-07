@@ -10,6 +10,7 @@ public class ManualObjectSpawner : MonoBehaviour
     [SerializeField] private GameObject pauseManagerPrefab;
     [SerializeField] private GameObject roleTrackerPrefab;
     [SerializeField] private GameObject enemyManagerPrefab;
+    [SerializeField] private GameObject arcadeManagerPrefab;
 
     private PlayersStartingPoints _startingPoints;
     private bool isListening = false;
@@ -17,6 +18,7 @@ public class ManualObjectSpawner : MonoBehaviour
     // Track if the main player has already been spawned
     private bool hasSpawnedPauseManager = false;
     private bool hasSpawnedRoleTracker = false;
+    private bool hasSpawnedArcadeManager = false;
 
     private List<ulong> connectedClients = new List<ulong>();
 
@@ -70,6 +72,14 @@ public class ManualObjectSpawner : MonoBehaviour
             GameObject enemyManagerInstance = Instantiate(enemyManagerPrefab);
             enemyManagerInstance.GetComponent<NetworkObject>().Spawn();
             Debug.Log("Spawned EnemyManager on server");
+        }
+
+        if (!hasSpawnedArcadeManager && arcadeManagerPrefab != null)
+        {
+            GameObject arcadeManagerInstance = Instantiate(arcadeManagerPrefab);
+            arcadeManagerInstance.GetComponent<NetworkObject>().Spawn();
+            hasSpawnedArcadeManager = true;
+            Debug.Log("Spawned ArcadeManager");
         }
 
         if (_startingPoints == null)

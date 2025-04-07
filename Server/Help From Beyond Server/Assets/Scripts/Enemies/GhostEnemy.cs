@@ -1,4 +1,5 @@
 
+using Enemies;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -12,20 +13,22 @@ public class GhostEnemy : NetworkBehaviour
     private bool dead = false;
 
     [SerializeField] private Vector2 direction = new Vector2(1, 0);
-    [SerializeField] private float speed = 1, normalSpeed = 1, maxSpeed = 7;
-    [SerializeField] private float minDistToWizard = 10, minMinDistance = 1;
+    [SerializeField] private float speed = 1, normalSpeed = 1;
+    [SerializeField] private float minDistToWizard = 10;
     [SerializeField] private Color angerColor;
 
     //wizard
     private WizardValues _wizardValues;
     private GhostValues _ghostValues;
 
+    private EnemyManager _enemyManager;
     void Start()
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _collider2D = GetComponent<Collider2D>();
         _rigidbody2D.gravityScale = 0;
+        _enemyManager = FindObjectOfType<EnemyManager>();
     }
 
 
@@ -107,12 +110,6 @@ public class GhostEnemy : NetworkBehaviour
         }
     }
 
-    public void IncreaseDifficulty()
-    {
-        normalSpeed = Mathf.Min(maxSpeed, speed + 1f);
-        minDistToWizard = Mathf.Max(minMinDistance, minDistToWizard - 1f);
-    }
-
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (!IsServer) return;
@@ -168,14 +165,33 @@ public class GhostEnemy : NetworkBehaviour
 
     public void Die()
     {
-        if (!IsServer) return;
+        if (!IsServer || dead) return;
 
         dead = true;
+
+        // Add point
+        if (_wizardValues != null && _wizardValues._playerManager != null && 
+            !_wizardValues._playerManager.isDead)
+        {
+            ArcadeManager.Instance?.AddWizardPoint();
+        }
+
+        // Do the visual part on all clients
+        DieClientRpc();
+
         _spriteRenderer.color = Color.clear;
         _rigidbody2D.simulated = false;
         _collider2D.enabled = false;
+
+        _enemyManager?.OnEnemyDied(this);
     }
 
+    [ClientRpc]
+    private void DieClientRpc()
+    {
+        // Show "death" visuals on all clients
+        _spriteRenderer.color = Color.clear;
+    }
 
     private void Activate()
     {

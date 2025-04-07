@@ -33,7 +33,6 @@ public class PlayerManager : NetworkBehaviour
     [SerializeField] private WizardAnimationManager _wizardAnimationManager;
     public PlayerManager otherPlayer;
     public bool isDead = false;
-    private ArcadeManager _arcadeManager;
     [NonSerialized] public SoundManager _soundManager;
     [SerializeField] private SpriteRenderer _spriteRendererWizard;
     [SerializeField] private List<Transform> startingPoints;
@@ -41,7 +40,6 @@ public class PlayerManager : NetworkBehaviour
     private void Awake()
     {
         _soundManager = GetComponentInParent<SoundManager>();
-        _arcadeManager = FindObjectOfType<ArcadeManager>();
         _camera = Camera.main;
         cameraShake = _camera.GetComponent<CameraShake>();
         cameraFollow = _camera.GetComponent<CameraFollow>();
@@ -210,14 +208,7 @@ public class PlayerManager : NetworkBehaviour
         if (GetOtherPlayer().GetComponent<PlayerManager>().isDead)
         {
             //game over
-            if (_arcadeManager)
-            {
-                _arcadeManager.GameOver();
-            }
-            else
-            {
-                Debug.Log("Game Over");
-            }
+            ArcadeManager.Instance?.TriggerGameOver();
         }
         else
         {
@@ -230,14 +221,7 @@ public class PlayerManager : NetworkBehaviour
         if (GetOtherPlayer().GetComponent<PlayerManager>().isDead)
         {
             //game over
-            if (_arcadeManager)
-            {
-                _arcadeManager.GameOver();
-            }
-            else
-            {
-                Debug.Log("Game Over");
-            }
+            ArcadeManager.Instance?.TriggerGameOver();
         }
         else
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -67,6 +68,59 @@ namespace Enemies
             }
 
             return result;
+        }
+
+        public void OnEnemyDied(GhostEnemy enemy)
+        {
+            _enemies.Remove(enemy);
+            StartCoroutine(RespawnEnemyAfterDelay(3f));
+        }
+
+        private IEnumerator RespawnEnemyAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            if (ArcadeManager.Instance.IsGameOver)
+                yield break;
+
+            // Find a valid spawn point not near players
+            Transform validPoint = GetValidSpawnPoint(5f); // min 5 units from players
+
+            if (validPoint != null)
+            {
+                GameObject newGhost = Instantiate(enemy, validPoint.position, Quaternion.identity);
+                var netObject = newGhost.GetComponent<NetworkObject>();
+                netObject.Spawn();
+                _enemies.Add(newGhost.GetComponent<GhostEnemy>());
+            }
+        }
+
+        private Transform GetValidSpawnPoint(float minDistanceFromPlayers)
+        {
+            List<Transform> candidates = new List<Transform>();
+
+            foreach (var point in enemiesSpawnPoints)
+            {
+                if (IsFarFromAllPlayers(point.position, minDistanceFromPlayers))
+                {
+                    candidates.Add(point);
+                }
+            }
+
+            if (candidates.Count == 0) return null;
+            return candidates[Random.Range(0, candidates.Count)];
+        }
+
+        private bool IsFarFromAllPlayers(Vector3 point, float minDist)
+        {
+            var allPlayers = GameObject.FindGameObjectsWithTag("Player");
+            foreach (var player in allPlayers)
+            {
+                if (Vector3.Distance(player.transform.position, point) < minDist)
+                    return false;
+            }
+
+            return true;
         }
     }
 }

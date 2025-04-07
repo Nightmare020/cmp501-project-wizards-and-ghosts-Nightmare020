@@ -13,7 +13,6 @@ public class PauseMenu : MonoBehaviour
     public CanvasGroup pauseMenu;
     public GameObject tutorialMenu;
     public GameObject GameOverPanel;
-    public GameObject GameWinPanel;
     public GameObject GamePointsPanel;
     public GameObject GameTimePanel;
 
@@ -230,18 +229,6 @@ public class PauseMenu : MonoBehaviour
         GameOverPanel.SetActive(false);
     }
 
-    public void ShowWinGame()
-    {
-        Debug.Log("Show game win");
-        GameWinPanel.SetActive(true);
-    }
-
-    public void HideWinGame()
-    {
-        Debug.Log("Hide game win");
-        GameWinPanel.SetActive(false);
-    }
-
     public void ShowTotalPoints()
     {
         Debug.Log("Show tutorial");
@@ -274,5 +261,20 @@ public class PauseMenu : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    public void ShowGameOverStuff(int totalPoints, int totalTimeSeconds)
+    {
+        ShowPauseUI(); // makes sure the pause menu canvas is visible
+
+        GameOverPanel.SetActive(true);
+        GamePointsPanel.SetActive(true);
+        GameTimePanel.SetActive(true);
+
+        if (_totalPoints != null)
+            _totalPoints.text = $"{totalPoints} points";
+
+        if (_totalTime != null)
+            _totalTime.text = $"{totalTimeSeconds} sec";
     }
 }
