@@ -24,21 +24,22 @@ public class PlayerManager : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Owner);
 
-    [SerializeField] private GameObject wizard, ghost, dead;
-    [NonSerialized] public Camera _camera;
-    [NonSerialized] public CameraShake cameraShake;
-    [NonSerialized] public CameraFollow cameraFollow;
-    [NonSerialized] public Rigidbody2D _rigidBody2D;
+    [SerializeField] private GameObject wizard, ghost, dead; // References to the wizard, ghost, and dead game objects
+    [NonSerialized] public Camera _camera; // Reference to the main camera
+    [NonSerialized] public CameraShake cameraShake; // Reference to the CameraShake component
+    [NonSerialized] public CameraFollow cameraFollow; // Reference to the CameraFollow component
+    [NonSerialized] public Rigidbody2D _rigidBody2D; // Reference to the Rigidbody2D component
 
-    [SerializeField] private WizardAnimationManager _wizardAnimationManager;
-    public PlayerManager otherPlayer;
-    public bool isDead = false;
-    [NonSerialized] public SoundManager _soundManager;
-    [SerializeField] private SpriteRenderer _spriteRendererWizard;
-    [SerializeField] private List<Transform> startingPoints;
+    [SerializeField] private WizardAnimationManager _wizardAnimationManager; // Reference to the WizardAnimationManager component
+    public PlayerManager otherPlayer; // Reference to the other player
+    public bool isDead = false; // Flag to check if the player is dead
+    [NonSerialized] public SoundManager _soundManager; // Reference to the SoundManager component
+    [SerializeField] private SpriteRenderer _spriteRendererWizard; // Reference to the SpriteRenderer component for the wizard
+    [SerializeField] private List<Transform> startingPoints; // List of starting points for the player
 
     private void Awake()
     {
+        // Initialize references to components
         _soundManager = GetComponentInParent<SoundManager>();
         _camera = Camera.main;
         cameraShake = _camera.GetComponent<CameraShake>();
@@ -59,9 +60,7 @@ public class PlayerManager : NetworkBehaviour
 
         currentState.OnValueChanged += OnPlayerStateChanged;
 
-        // If value already available, apply it
-        //OnPlayerStateChanged(PlayerState.Wizard, currentState.Value);
-
+        // Force state synchronization
         ForceStateSync();
 
         // Enable control over the wizard player
@@ -84,7 +83,6 @@ public class PlayerManager : NetworkBehaviour
     private void EnableControl()
     {
         // Enable input and control for the wizard player
-        // Assuming you have an input manager or similar setup
         MyInputManager inputManager = GetComponent<MyInputManager>();
         if (inputManager != null)
         {
@@ -103,7 +101,6 @@ public class PlayerManager : NetworkBehaviour
     public PlayerManager GetOtherPlayer()
     {
         if (otherPlayer != null) return otherPlayer;
-
 
         foreach (PlayerManager player in FindObjectsOfType<PlayerManager>())
         {
@@ -126,6 +123,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void Update()
     {
+        // Check if the player has fallen off the map
         if (Time.frameCount % 10 == 0 && transform.position.y < -45)
         {
             Die();
@@ -139,6 +137,7 @@ public class PlayerManager : NetworkBehaviour
         Camera wizardCam = _camera;
         if (!wizardCam) return;
 
+        // Update camera bounds
         Vector3 bottomLeft = wizardCam.ViewportToWorldPoint(new Vector3(0, 0));
         Vector3 topRight = wizardCam.ViewportToWorldPoint(new Vector3(1, 1));
 
@@ -234,7 +233,7 @@ public class PlayerManager : NetworkBehaviour
 
         if (GetOtherPlayer().GetComponent<PlayerManager>().isDead)
         {
-            //game over
+            // Game over
             ArcadeManager.Instance?.TriggerGameOver();
         }
 
@@ -246,7 +245,7 @@ public class PlayerManager : NetworkBehaviour
     {
         if (GetOtherPlayer().GetComponent<PlayerManager>().isDead)
         {
-            //game over
+            // Game over
             Debug.Log("Both players dead — triggering game over");
             ArcadeManager.Instance?.TriggerGameOver();
         }
@@ -286,7 +285,8 @@ public class PlayerManager : NetworkBehaviour
 
             yield return new WaitForSeconds(seconds);
             Physics2D.IgnoreLayerCollision(7, 9, false);
-            //alfa =1  
+
+            // Restore alpha to 1
             _spriteRendererWizard.color = Color.white;
         }
         else if (currentState.Value is PlayerState.Ghost)

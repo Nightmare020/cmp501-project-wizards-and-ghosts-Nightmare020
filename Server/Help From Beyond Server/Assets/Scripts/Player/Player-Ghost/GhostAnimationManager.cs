@@ -9,10 +9,4 @@ public class GhostAnimationManager : MonoBehaviour
     {
         _animator = GetComponentInChildren<Animator>();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

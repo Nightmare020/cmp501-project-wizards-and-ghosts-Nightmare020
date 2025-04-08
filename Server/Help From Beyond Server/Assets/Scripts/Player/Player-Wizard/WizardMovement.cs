@@ -4,49 +4,49 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
 
-
 public class WizardMovement : NetworkBehaviour
 {
-    private WizardValues _wizardValues;
-    private float _gamePadAddedSpeed;
-    private MyInputManager _inputs;
-    private CameraShake _cameraShake;
+    private WizardValues _wizardValues; // Reference to WizardValues component
+    private float _gamePadAddedSpeed; // Speed added by gamepad input
+    private MyInputManager _inputs; // Reference to input manager
+    private CameraShake _cameraShake; // Reference to CameraShake component
 
-    // actions performed
+    // Actions performed
     private bool dashPerformed = false;
 
-    //dash timer
+    // Dash timer
     private MyStopwatch dashTimer;
 
-    private Vector2 cachedInput;
+    private Vector2 cachedInput; // Cached input for movement
 
     private struct InputFrame
     {
-        public float timestamp;
-        public Vector2 movement;
-        public bool jump;
-        public bool dash;
+        public float timestamp; // Timestamp of the input
+        public Vector2 movement; // Input vector for movement
+        public bool jump; // Flag to check if jump is performed
+        public bool dash; // Flag to check if dash is performed
     }
 
-    private Queue<InputFrame> inputHistory = new Queue<InputFrame>();
-    private const float reconciliationThreshold = 0.15f;
-    private Vector3 lastServerPosition;
-    private Vector2 lastServerVelocity;
+    private Queue<InputFrame> inputHistory = new Queue<InputFrame>(); // Queue to store input history
+    private const float reconciliationThreshold = 0.15f; // Threshold for position reconciliation
+    private Vector3 lastServerPosition; // Last known position from the server
+    private Vector2 lastServerVelocity; // Last known velocity from the server
 
-    private float jumpBufferTimer = 0f;
-    private float dashBufferTimer = 0f;
-    private const float inputBufferDuration = 0.25f;
+    private float jumpBufferTimer = 0f; // Timer for jump input buffering
+    private float dashBufferTimer = 0f; // Timer for dash input buffering
+    private const float inputBufferDuration = 0.25f; // Duration for input buffering
 
-    private bool _isLocallyGrounded;
+    private bool _isLocallyGrounded; // Flag to check if the wizard is grounded
 
-    private float coyoteTimer = 0f;
-    private const float coyoteTime = 0.1f;
+    private float coyoteTimer = 0f; // Timer for coyote time
+    private const float coyoteTime = 0.1f; // Duration for coyote time
 
     // Store smoothed input
     private Vector2 _smoothedInput = Vector2.zero;
 
     private void Start()
     {
+        // Initialize references to components
         _cameraShake = FindObjectOfType<CameraShake>();
         dashTimer = gameObject.AddComponent<MyStopwatch>();
         _wizardValues = GetComponent<WizardValues>();
@@ -61,6 +61,7 @@ public class WizardMovement : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+        // Check if jump or dash input is performed
         if (_inputs.WizardJumpPerformedThisFrame())
             jumpBufferTimer = inputBufferDuration;
 
@@ -73,7 +74,7 @@ public class WizardMovement : NetworkBehaviour
         _isLocallyGrounded = _wizardValues.IsGrounded();
         coyoteTimer = _isLocallyGrounded ? coyoteTime : Mathf.Max(0f, coyoteTimer - Time.fixedDeltaTime);
 
-        if (!IsServer && _isLocallyGrounded && dashPerformed && 
+        if (!IsServer && _isLocallyGrounded && dashPerformed &&
             dashTimer.GetElapsedSeconds() > _wizardValues.dashCooldown)
         {
             dashPerformed = false;
@@ -140,7 +141,7 @@ public class WizardMovement : NetworkBehaviour
 
     private void SimulateMovement(Vector2 input)
     {
-        _smoothedInput = Vector2.Lerp(_smoothedInput, input, 0.25f); // smooth over time
+        _smoothedInput = Vector2.Lerp(_smoothedInput, input, 0.25f); // Smooth input over time
 
         Vector2 velocity = _wizardValues.rigidBody.velocity;
         float moveSpeed = _isLocallyGrounded ? _wizardValues.moveSpeed
@@ -196,7 +197,6 @@ public class WizardMovement : NetworkBehaviour
 
         SendReconciliationClientRpc(transform.position, _wizardValues.rigidBody.velocity, timestamp);
     }
-
 
     // ================================
     // SERVER: Movement + Logic
@@ -294,8 +294,8 @@ public class WizardMovement : NetworkBehaviour
     {
         _wizardValues.rigidBody.velocity *= new Vector2(1, 0);
 
-        float force = cachedInput == Vector2.zero 
-            ? _wizardValues.jumpForce / 1.25f 
+        float force = cachedInput == Vector2.zero
+            ? _wizardValues.jumpForce / 1.25f
             : _wizardValues.jumpForce;
 
         _wizardValues.rigidBody.AddForce(Vector2.up * force, ForceMode2D.Impulse);
@@ -408,7 +408,7 @@ public class WizardMovement : NetworkBehaviour
             _wizardValues.animationManager.SetJumping(true);
         }
 
-        //Speed
+        // Speed
         else if (_wizardValues.IsGrounded())
         {
             _wizardValues.animationManager.SetFalling(false);

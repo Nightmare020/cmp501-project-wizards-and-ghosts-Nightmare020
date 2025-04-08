@@ -6,16 +6,25 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 public class SelectionWizardGhost : MonoBehaviour
 {
+    // UI text element to display the selected player
     [SerializeField] private TMP_Text selectPlayerText;
+
+    // UI image element to represent the player
     [SerializeField] private Image playerImage;
+
+    // Transform positions for the wizard and ghost selections
     [SerializeField] private Transform wizardX, ghostX;
+
+    // Canvas group for the accept image
     [SerializeField] private CanvasGroup acceptImageCanvas;
 
+    // Reference to the input manager
     private MyInputManager player;
-    private int selectedRole = 0; // 1 = Wizard, -1 = Ghost, 0 = None
+
+    // Variable to store the selected role (1 = Wizard, -1 = Ghost, 0 = None)
+    private int selectedRole = 0;
 
     public void Initialize(MyInputManager inputManager)
     {
@@ -44,7 +53,7 @@ public class SelectionWizardGhost : MonoBehaviour
         // Hide UI
         gameObject.SetActive(false);
 
-        // Inititate connection to server with selected role
+        // Initiate connection to server with selected role
         GameNetworkManager.Instance.ConnectAsRole(selectedRole);
     }
 

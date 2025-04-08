@@ -6,21 +6,21 @@ using UnityEngine;
 
 public class ManualObjectSpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject playerPrefab;
-    [SerializeField] private GameObject pauseManagerPrefab;
-    [SerializeField] private GameObject roleTrackerPrefab;
-    [SerializeField] private GameObject enemyManagerPrefab;
-    [SerializeField] private GameObject arcadeManagerPrefab;
+    [SerializeField] private GameObject playerPrefab; // Prefab for the player
+    [SerializeField] private GameObject pauseManagerPrefab; // Prefab for the pause manager
+    [SerializeField] private GameObject roleTrackerPrefab; // Prefab for the role tracker
+    [SerializeField] private GameObject enemyManagerPrefab; // Prefab for the enemy manager
+    [SerializeField] private GameObject arcadeManagerPrefab; // Prefab for the arcade manager
 
-    private PlayersStartingPoints _startingPoints;
-    private bool isListening = false;
+    private PlayersStartingPoints _startingPoints; // Reference to the starting points
+    private bool isListening = false; // Flag to check if the server is listening for connections
 
     // Track if the main player has already been spawned
     private bool hasSpawnedPauseManager = false;
     private bool hasSpawnedRoleTracker = false;
     private bool hasSpawnedArcadeManager = false;
 
-    private List<ulong> connectedClients = new List<ulong>();
+    private List<ulong> connectedClients = new List<ulong>(); // List of connected clients
 
     private void Update()
     {
@@ -37,6 +37,7 @@ public class ManualObjectSpawner : MonoBehaviour
 
     private void OnDestroy()
     {
+        // Unsubscribe from the client connected callback when the object is destroyed
         if (isListening && NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
@@ -50,7 +51,7 @@ public class ManualObjectSpawner : MonoBehaviour
         connectedClients.Add(clientId);
         int index = connectedClients.Count - 1;
 
-        // Spawn pause manager
+        // Spawn pause manager if not already spawned
         if (!hasSpawnedPauseManager && pauseManagerPrefab != null)
         {
             GameObject pauseManagerInstance = Instantiate(pauseManagerPrefab);
@@ -59,6 +60,7 @@ public class ManualObjectSpawner : MonoBehaviour
             Debug.Log("Spawned NetworkPauseManager");
         }
 
+        // Spawn role tracker if not already spawned
         if (!hasSpawnedRoleTracker && roleTrackerPrefab != null)
         {
             GameObject roleTrackerInstance = Instantiate(roleTrackerPrefab);
@@ -67,6 +69,7 @@ public class ManualObjectSpawner : MonoBehaviour
             Debug.Log("Spawned RoleTracker");
         }
 
+        // Spawn enemy manager if running as server
         if (NetworkManager.Singleton.IsServer && enemyManagerPrefab != null)
         {
             GameObject enemyManagerInstance = Instantiate(enemyManagerPrefab);
@@ -74,6 +77,7 @@ public class ManualObjectSpawner : MonoBehaviour
             Debug.Log("Spawned EnemyManager on server");
         }
 
+        // Spawn arcade manager if not already spawned
         if (!hasSpawnedArcadeManager && arcadeManagerPrefab != null)
         {
             GameObject arcadeManagerInstance = Instantiate(arcadeManagerPrefab);
@@ -82,6 +86,7 @@ public class ManualObjectSpawner : MonoBehaviour
             Debug.Log("Spawned ArcadeManager");
         }
 
+        // Find starting points if not already found
         if (_startingPoints == null)
         {
             _startingPoints = FindObjectOfType<PlayersStartingPoints>();
@@ -93,6 +98,7 @@ public class ManualObjectSpawner : MonoBehaviour
             }
         }
 
+        // Spawn the player for the connected client
         SpawnPlayer(clientId, index);
     }
 
@@ -126,7 +132,7 @@ public class ManualObjectSpawner : MonoBehaviour
         var role = index == 0 ? PlayerState.Wizard : PlayerState.Ghost;
         playerManager.SetInitialPlayerState(role);
 
-        // register the role on the server immediately
+        // Register the role on the server immediately
         var roleTracker = FindObjectOfType<PlayerRoleTracker>();
         if (roleTracker != null && roleTracker.IsServer)
         {

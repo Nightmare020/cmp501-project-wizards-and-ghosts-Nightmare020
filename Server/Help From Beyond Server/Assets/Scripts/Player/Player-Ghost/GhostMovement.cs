@@ -4,39 +4,39 @@ using System.Collections.Generic;
 
 public class GhostMovement : NetworkBehaviour
 {
-    private GhostValues _ghostValues;
-    private float _gamePadAddedSpeed;
-    private MyInputManager _inputs;
+    private GhostValues _ghostValues; // Reference to GhostValues component
+    private float _gamePadAddedSpeed; // Speed added by gamepad input
+    private MyInputManager _inputs; // Reference to input manager
 
-    private Vector2 _cachedInput;
-    private Vector2 _smoothedInput = Vector2.zero;
+    private Vector2 _cachedInput; // Cached input for movement
+    private Vector2 _smoothedInput = Vector2.zero; // Smoothed input for movement
 
-    private Vector2 _screenBounds;
-    private Vector2 _upperBound;
-    private Vector2 _lowerBound;
-    private float _objectWidth;
-    private float _objectHeight;
+    private Vector2 _screenBounds; // Screen bounds for clamping position
+    private Vector2 _upperBound; // Upper bound for movement
+    private Vector2 _lowerBound; // Lower bound for movement
+    private float _objectWidth; // Width of the ghost object
+    private float _objectHeight; // Height of the ghost object
 
-    private Vector3 lastServerPosition;
-    private Vector2 lastServerVelocity;
-    private const float reconciliationThreshold = 0.1f;
+    private Vector3 lastServerPosition; // Last known position from the server
+    private Vector2 lastServerVelocity; // Last known velocity from the server
+    private const float reconciliationThreshold = 0.1f; // Threshold for position reconciliation
 
     private struct InputFrame
     {
-        public float timestamp;
-        public Vector2 input;
-        public float strength;
+        public float timestamp; // Timestamp of the input
+        public Vector2 input; // Input vector
+        public float strength; // Strength of the input
     }
 
-    private Queue<InputFrame> inputHistory = new Queue<InputFrame>();
+    private Queue<InputFrame> inputHistory = new Queue<InputFrame>(); // Queue to store input history
 
     private void Start()
     {
         _ghostValues = GetComponent<GhostValues>();
         _inputs = GetComponentInParent<MyInputManager>();
 
-        _objectWidth = _ghostValues.spriteRenderer.bounds.extents.x; //extents = size of width / 2
-        _objectHeight = _ghostValues.spriteRenderer.bounds.extents.y; //extents = size of height / 2
+        _objectWidth = _ghostValues.spriteRenderer.bounds.extents.x; // Extents = size of width / 2
+        _objectHeight = _ghostValues.spriteRenderer.bounds.extents.y; // Extents = size of height / 2
 
         _screenBounds = Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
     }
@@ -45,10 +45,12 @@ public class GhostMovement : NetworkBehaviour
     {
         if (IsServer)
         {
+            // Simulate movement on the server
             SimulateMovement(_cachedInput, _gamePadAddedSpeed);
         }
         else if (IsOwner)
         {
+            // Get input from the player
             Vector2 input = _inputs.GhostMovement();
             float inputStrength = input.magnitude;
             _cachedInput = input;
@@ -60,6 +62,7 @@ public class GhostMovement : NetworkBehaviour
             SimulateMovement(input, inputStrength);
             UpdateFacingDirection(input);
 
+            // Store input in history
             inputHistory.Enqueue(new InputFrame
             {
                 timestamp = timestamp,
@@ -67,11 +70,14 @@ public class GhostMovement : NetworkBehaviour
                 strength = inputStrength
             });
 
+            // Limit the size of the input history
             if (inputHistory.Count > 100)
                 inputHistory.Dequeue();
 
+            // Send input to the server
             SendInputToServerRpc(input, inputStrength, timestamp);
 
+            // Reconcile position with the server
             float error = Vector3.Distance(transform.position, lastServerPosition);
             if (error > reconciliationThreshold)
             {
@@ -100,8 +106,13 @@ public class GhostMovement : NetworkBehaviour
         _cachedInput = input;
         _gamePadAddedSpeed = strength;
 
+        // Simulate movement on the server
         SimulateMovement(input, strength);
+
+        // Send reconciliation data to the client
         SendReconciliationClientRpc(transform.position, _ghostValues.rigidBody.velocity, timestamp);
+        
+        // Update ghost visuals on the client
         UpdateGhostVisualClientRpc(input);
     }
 
@@ -113,6 +124,7 @@ public class GhostMovement : NetworkBehaviour
         lastServerPosition = position;
         lastServerVelocity = velocity;
 
+        // Remove old inputs from the history
         while (inputHistory.Count > 0 && inputHistory.Peek().timestamp <= timestamp)
         {
             inputHistory.Dequeue();
@@ -154,11 +166,12 @@ public class GhostMovement : NetworkBehaviour
 
         Vector3 viewPos = transform.root.position;
         float width = _objectWidth;
-        float heigth = _objectHeight;
+        float height = _objectHeight;
 
+        // Clamp the position within the camera bounds
         viewPos.x = Mathf.Clamp(viewPos.x, bounds.x + width, bounds.z - width);
-        viewPos.y = Mathf.Clamp(viewPos.y, bounds.y + heigth, bounds.w - heigth);
-        
+        viewPos.y = Mathf.Clamp(viewPos.y, bounds.y + height, bounds.w - height);
+
         transform.root.position = viewPos;
     }
 

@@ -2,46 +2,51 @@ using UnityEngine;
 
 public class PlayersSelectionInputs : MonoBehaviour
 {
+    // Reference to the SelectionWizardGhost component
     private SelectionWizardGhost _selectionPanel;
+
+    // Reference to the MyInputManager component
     private MyInputManager _input;
 
     private void Awake()
     {
+        // Find and assign the SelectionWizardGhost component in the scene
         _selectionPanel = FindObjectOfType<SelectionWizardGhost>();
+
+        // Find and assign the MyInputManager component in the scene
         _input = FindObjectOfType<MyInputManager>();
     }
 
     private void Start()
     {
+        // Initialize the selection panel with the input manager if it exists
         if (_selectionPanel != null)
         {
             _selectionPanel.Initialize(_input);
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (_selectionPanel)
         {
-            //confirm
+            // Confirm selection
             if (_input.NavigationSelect())
             {
                 _selectionPanel.PlayerAccept();
             }
 
-            //left 
+            // Select Wizard role
             if (_input.NavigationLeft())
             {
                 _selectionPanel.SelectLeft();
             }
 
-            //right
+            // Select Ghost role
             if (_input.NavigationRight())
             {
                 _selectionPanel.SelectRight();
             }
-            //exit
         }
     }
 }

@@ -6,25 +6,25 @@ using UnityEngine.UI;
 
 public class Resurrect : MonoBehaviour
 {
-    [SerializeField] private PlayerManager _playerManager;
+    [SerializeField] private PlayerManager _playerManager; // Reference to the PlayerManager component
 
-    // Start is called before the first frame update
-    [SerializeField] private LayerMask ground;
-    [SerializeField] private CanvasGroup sliderCanvas;
-    [SerializeField] private Slider _slider;
-    [SerializeField] private float min = -2, max = -1;
-    [SerializeField] private Transform referencePoint;
-    private float value = 0;
-    [SerializeField] private float factor = 0.1f;
-    private List<Transform> _spawnPoints;
-    [SerializeField] private SpriteRenderer _spriteRenderer;
-    [SerializeField] private List<Sprite> treeSprites;
+    [SerializeField] private LayerMask ground; // Layer mask for ground detection
+    [SerializeField] private CanvasGroup sliderCanvas; // Canvas group for the slider UI
+    [SerializeField] private Slider _slider; // Slider UI element
+    [SerializeField] private float min = -2, max = -1; // Minimum and maximum distances for the slider
+    [SerializeField] private Transform referencePoint; // Reference point for distance calculation
+    private float value = 0; // Current value of the slider
+    [SerializeField] private float factor = 0.1f; // Factor for increasing the slider value
+    private List<Transform> _spawnPoints; // List of spawn points
+    [SerializeField] private SpriteRenderer _spriteRenderer; // Sprite renderer for the tree sprites
+    [SerializeField] private List<Sprite> treeSprites; // List of tree sprites
 
-    private float _spritePercent = 0;
-    private PlayerManager _cachedOtherPlayer;
+    private float _spritePercent = 0; // Percentage for changing tree sprites
+    private PlayerManager _cachedOtherPlayer; // Cached reference to the other player
 
     void Awake()
     {
+        // Initialize the sprite percentage and spawn points
         _spritePercent = 1f / treeSprites.Count;
         _spawnPoints = new List<Transform>();
         foreach (var spawn in GameObject.FindGameObjectsWithTag("Respawn"))
@@ -35,11 +35,13 @@ public class Resurrect : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        // Draw a wire sphere to visualize the reference point
         Gizmos.DrawWireSphere(referencePoint.position, Mathf.Abs(min));
     }
 
     private void OnEnable()
     {
+        // Set the initial position of the resurrect object
         RaycastHit2D spawnPos =
             Physics2D.Raycast(transform.parent.position + new Vector3(0, 0.1f), Vector2.down, Single.NegativeInfinity,
                 ground);
@@ -53,8 +55,6 @@ public class Resurrect : MonoBehaviour
         }
     }
 
-
-    // Update is called once per frame
     void Update()
     {
         if (_playerManager == null) return;
@@ -69,6 +69,7 @@ public class Resurrect : MonoBehaviour
             }
         }
 
+        // Calculate the distance between the other player and the reference point
         float distance = -Vector2.Distance(_playerManager.otherPlayer.transform.position, referencePoint.position);
         if (distance < min)
         {
@@ -76,6 +77,7 @@ public class Resurrect : MonoBehaviour
         }
         else
         {
+            // Update the slider value and tree sprite based on the distance
             sliderCanvas.alpha = Mathf.Clamp01(MyUtils.Normalice(distance, min, max));
             value += Time.fixedDeltaTime * factor;
             _slider.value = Mathf.Clamp01(value);
@@ -100,6 +102,7 @@ public class Resurrect : MonoBehaviour
 
     private Vector2 GetClosestCheckpoint()
     {
+        // Find the closest checkpoint to the current position
         float minDist = Single.PositiveInfinity;
         Vector2 closest = transform.position;
         for (int i = 0; i < _spawnPoints.Count; i++)

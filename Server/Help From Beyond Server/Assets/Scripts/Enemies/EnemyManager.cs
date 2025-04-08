@@ -9,25 +9,28 @@ namespace Enemies
 {
     public class EnemyManager : NetworkBehaviour
     {
-        [SerializeField] private GameObject enemy;
-        [SerializeField] private GameObject spawnsEnemies;
+        [SerializeField] private GameObject enemy; // Prefab of the enemy to spawn
+        [SerializeField] private GameObject spawnsEnemies; // Parent object containing spawn points
 
-        private List<GhostEnemy> _enemies;
-        private List<Transform> enemiesSpawnPoints;
+        private List<GhostEnemy> _enemies; // List to keep track of spawned enemies
+        private List<Transform> enemiesSpawnPoints; // List of spawn points
 
-        [SerializeField] private int maxEnemies = 2;
-        [SerializeField] private float minSpawnDistance;
+        [SerializeField] private int maxEnemies = 2; // Maximum number of enemies allowed
+        [SerializeField] private float minSpawnDistance; // Minimum distance between spawn points and players
 
         private void Start()
         {
+            // Only the server should manage enemy spawning
             if (!IsServer) return;
 
             _enemies = new List<GhostEnemy>();
 
+            // Get all spawn points from the parent object
             enemiesSpawnPoints = new List<Transform>();
             enemiesSpawnPoints.AddRange(spawnsEnemies.GetComponentsInChildren<Transform>());
             enemiesSpawnPoints.Remove(spawnsEnemies.transform);
 
+            // Spawn initial enemies
             SpawnEnemies();
         }
 
@@ -36,13 +39,17 @@ namespace Enemies
             int enemiesSpawned = 0;
             int enemiesToSpawn = maxEnemies - _enemies.Count;
 
+            // Spawn enemies until the maximum number is reached
             while (enemiesSpawned < enemiesToSpawn)
             {
                 Transform spawnPoint = enemiesSpawnPoints[Random.Range(0, enemiesSpawnPoints.Count)];
                 Transform closestEnemy = GetClosestGhostEnemy(spawnPoint.position);
+                
+                // Check if the spawn point is far enough from other enemies
                 if (closestEnemy == null || Vector2.Distance(spawnPoint.position,
                     closestEnemy.transform.position) > minSpawnDistance)
                 {
+                    // Instantiate and spawn the enemy
                     GameObject newGhost = Instantiate(enemy, spawnPoint.position, Quaternion.identity);
                     var netObject = newGhost.GetComponent<NetworkObject>();
                     netObject.Spawn();
@@ -57,6 +64,7 @@ namespace Enemies
             float min = Single.PositiveInfinity;
             Transform result = null;
 
+            // Find the closest enemy to the given position
             for (int i = 0; i < _enemies.Count; i++)
             {
                 float dist = Vector2.Distance(position, _enemies[i].transform.position);
@@ -72,14 +80,17 @@ namespace Enemies
 
         public void OnEnemyDied(GhostEnemy enemy)
         {
+            // Remove the dead enemy from the list and start the respawn coroutine
             _enemies.Remove(enemy);
             StartCoroutine(RespawnEnemyAfterDelay(3f));
         }
 
         private IEnumerator RespawnEnemyAfterDelay(float delay)
         {
+            // Wait for the specified delay
             yield return new WaitForSeconds(delay);
 
+            // If the game is over, do not respawn enemies
             if (ArcadeManager.Instance.IsGameOver)
                 yield break;
 
@@ -88,6 +99,7 @@ namespace Enemies
 
             if (validPoint != null)
             {
+                // Instantiate and spawn the enemy
                 GameObject newGhost = Instantiate(enemy, validPoint.position, Quaternion.identity);
                 var netObject = newGhost.GetComponent<NetworkObject>();
                 netObject.Spawn();
@@ -99,6 +111,7 @@ namespace Enemies
         {
             List<Transform> candidates = new List<Transform>();
 
+            // Find spawn points that are far enough from all players
             foreach (var point in enemiesSpawnPoints)
             {
                 if (IsFarFromAllPlayers(point.position, minDistanceFromPlayers))
@@ -114,6 +127,7 @@ namespace Enemies
         private bool IsFarFromAllPlayers(Vector3 point, float minDist)
         {
             var allPlayers = GameObject.FindGameObjectsWithTag("Player");
+            // Check if the point is far enough from all players
             foreach (var player in allPlayers)
             {
                 if (Vector3.Distance(player.transform.position, point) < minDist)

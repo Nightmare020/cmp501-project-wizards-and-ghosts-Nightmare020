@@ -5,53 +5,50 @@ using UnityEngine;
 
 public class Bullet : NetworkBehaviour
 {
-    // Start is called before the first frame update
-    [SerializeField] private Rigidbody2D _rigidbody2D;
-    [SerializeField] private SpriteRenderer _sprite;
-    [SerializeField] private CircleCollider2D _collider2D;
-    //private EnemyManager _enemyManager;
-    private static readonly int Shoot1 = Animator.StringToHash("Shoot");
-    private static readonly int Die = Animator.StringToHash("die");
-    public bool isBeingUsed = false;
-    public bool enhanced = false;
-    private CameraShake _cameraShake;
-    private bool hasBeenDespawned = false;
+    [SerializeField] private Rigidbody2D _rigidbody2D; // Reference to the Rigidbody2D component
+    [SerializeField] private SpriteRenderer _sprite; // Reference to the SpriteRenderer component
+    [SerializeField] private CircleCollider2D _collider2D; // Reference to the CircleCollider2D component
+    private static readonly int Shoot1 = Animator.StringToHash("Shoot"); // Hash for the "Shoot" animation
+    private static readonly int Die = Animator.StringToHash("die"); // Hash for the "die" animation
+    public bool isBeingUsed = false; // Flag to check if the bullet is being used
+    public bool enhanced = false; // Flag to check if the bullet is enhanced
+    private CameraShake _cameraShake; // Reference to the CameraShake component
+    private bool hasBeenDespawned = false; // Flag to check if the bullet has been despawned
 
-    private Vector3 origin;
-    //bullet particles
+    private Vector3 origin; // Origin position of the bullet
 
-    //shoot particles
-    [SerializeField] private Transform shootEffect;
-    [SerializeField] private Animator shootAnimator;
+    // Bullet particles
+    [SerializeField] private Transform shootEffect; // Transform for the shoot effect
+    [SerializeField] private Animator shootAnimator; // Animator for the shoot effect
 
-    //impact particles
-    [SerializeField] private Transform impactEffect;
-    [SerializeField] private Animator impactAnimator;
+    [SerializeField] private Transform impactEffect; // Transform for the impact effect
+    [SerializeField] private Animator impactAnimator; // Animator for the impact effect
 
-    //bounce particles
-    [SerializeField] private Transform bounceEffect;
-    [SerializeField] private Animator bounceAnimator;
+    [SerializeField] private Transform bounceEffect; // Transform for the bounce effect
+    [SerializeField] private Animator bounceAnimator; // Animator for the bounce effect
 
-    //sound
-    [SerializeField] private AudioClip shootSound, BounceSound, ImpactSound;
-    [SerializeField] private AudioSource _audioSource;
+    // Sound
+    [SerializeField] private AudioClip shootSound, BounceSound, ImpactSound; // Audio clips for the bullet sounds
+    [SerializeField] private AudioSource _audioSource; // Audio source for playing sounds
 
-    //children
-    private List<Transform> children;
+    // Children
+    private List<Transform> children; // List of child transforms
 
     private void Awake()
     {
+        // Initialize the list of child transforms
         children = new List<Transform>();
         children.AddRange(GetComponentsInChildren<Transform>());
     }
 
     private void Start()
     {
+        // Find the CameraShake component in the scene
         _cameraShake = FindObjectOfType<CameraShake>();
 
         if (IsServer)
         {
-            //_enemyManager = FindObjectOfType<EnemyManager>();
+            // Detach the particle effects from the bullet
             shootEffect.parent = null;
             impactEffect.parent = null;
             bounceEffect.parent = null;
@@ -60,6 +57,7 @@ public class Bullet : NetworkBehaviour
 
     private void Update()
     {
+        // Check if the bullet has traveled too far from its origin
         if (Time.frameCount % 10 == 0 && isBeingUsed)
         {
             if (Vector2.Distance(transform.position, origin) > 50)
@@ -71,12 +69,14 @@ public class Bullet : NetworkBehaviour
 
     public void EnableBullet()
     {
+        // Enable the collider and sprite renderer
         _collider2D.enabled = true;
         _sprite.enabled = true;
     }
 
     public void DisableBullet()
     {
+        // Disable the collider and sprite renderer
         _collider2D.enabled = false;
         _sprite.enabled = false;
     }
@@ -104,7 +104,7 @@ public class Bullet : NetworkBehaviour
         shootEffect.position = ray.GetPoint(0.5f);
         shootAnimator.SetTrigger("Shoot");
 
-        // Avoid playing audio on the sever if it's not a host client
+        // Avoid playing audio on the server if it's not a host client
         if (!IsServer || IsHost)
         {
             _audioSource.clip = shootSound;
@@ -136,45 +136,29 @@ public class Bullet : NetworkBehaviour
 
         if (!hasBeenDespawned)
         {
-            // play impact effect
+            // Play impact effect
             Impact(transform.position);
         }
     }
 
     public void Bounce(Vector2 direction, Vector2 normal)
     {
-        //sound
+        // Play bounce sound
         _audioSource.clip = BounceSound;
         _audioSource.Play();
-        //camer shake
+        // Camera shake
         _cameraShake.Shake(0.1f, 0.1f);
-        //effect
+        // Play bounce effect
         bounceEffect.position = transform.position;
         bounceAnimator.SetTrigger("Bounce");
         ChangeLayer(6);
         float speed = _rigidbody2D.velocity.magnitude;
         Vector2 reflectDirection = Vector2.Reflect(direction, normal).normalized;
 
-        //if (_enemyManager)
-        //{
-        //    Transform enemyPos = _enemyManager.GetClosestWizzardEnemy(transform.position);
-        //    Transform enemyGhost = _enemyManager.GetClosestGhostEnemy(transform.position);
-
-        //    if (enemyPos)
-        //    {
-        //        reflectDirection = (enemyPos.position - transform.position).normalized;
-        //    }
-        //    else if (enemyGhost)
-        //    {
-        //        reflectDirection = (enemyGhost.position - transform.position).normalized;
-        //    }
-        //}
-
         transform.right = reflectDirection;
         _rigidbody2D.velocity = reflectDirection * speed;
         _sprite.color = Color.blue;
         enhanced = true;
-        //play bounce effects
     }
 
     public void Impact(Vector2 colpoint)
@@ -185,7 +169,7 @@ public class Bullet : NetworkBehaviour
         _audioSource.clip = ImpactSound;
         _audioSource.Play();
 
-        //impact animation
+        // Play impact animation
         impactEffect.position = colpoint;
         impactAnimator.SetTrigger("Impact");
 
@@ -202,7 +186,7 @@ public class Bullet : NetworkBehaviour
 
         if (IsServer && NetworkObject.IsSpawned)
         {
-            // remove from network
+            // Remove from network
             NetworkObject.Despawn(true);
         }
 
@@ -259,10 +243,10 @@ public class Bullet : NetworkBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        //trampolin
+        // Check if the bullet collided with a non-wizard object
         if (!other.gameObject.CompareTag("Wizard"))
         {
-            //enemies
+            // Check if the bullet collided with a ghost enemy
             if (other.gameObject.CompareTag("Ghost Enemy"))
             {
                 GhostEnemy enemy = other.gameObject.GetComponent<GhostEnemy>();
@@ -273,7 +257,7 @@ public class Bullet : NetworkBehaviour
 
                 Impact(transform.position);
             }
-            //scene
+            // Handle collision with other objects
             else
             {
                 Impact(transform.position);
@@ -283,6 +267,7 @@ public class Bullet : NetworkBehaviour
 
     private void ChangeLayer(int layer)
     {
+        // Change the layer of all child objects
         foreach (var child in children)
         {
             if (child != null)
