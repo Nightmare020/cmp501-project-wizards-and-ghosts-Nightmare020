@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class GhostMovement : NetworkBehaviour
 {
@@ -7,47 +8,80 @@ public class GhostMovement : NetworkBehaviour
     private float _gamePadAddedSpeed;
     private MyInputManager _inputs;
 
+    private Vector2 _cachedInput;
+    private Vector2 _smoothedInput = Vector2.zero;
+
     private Vector2 _screenBounds;
     private Vector2 _upperBound;
     private Vector2 _lowerBound;
     private float _objectWidth;
     private float _objectHeight;
 
-    private Vector2 _cachedInput;
+    private Vector3 lastServerPosition;
+    private Vector2 lastServerVelocity;
+    private const float reconciliationThreshold = 0.1f;
+
+    private struct InputFrame
+    {
+        public float timestamp;
+        public Vector2 input;
+        public float strength;
+    }
+
+    private Queue<InputFrame> inputHistory = new Queue<InputFrame>();
 
     private void Start()
     {
         _ghostValues = GetComponent<GhostValues>();
         _inputs = GetComponentInParent<MyInputManager>();
-        //_screenBounds = Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height) * 0.5f);
 
-        //_screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
         _objectWidth = _ghostValues.spriteRenderer.bounds.extents.x; //extents = size of width / 2
         _objectHeight = _ghostValues.spriteRenderer.bounds.extents.y; //extents = size of height / 2
+
+        _screenBounds = Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if (!IsOwner) return;
+        if (IsServer)
+        {
+            SimulateMovement(_cachedInput, _gamePadAddedSpeed);
+        }
+        else if (IsOwner)
+        {
+            Vector2 input = _inputs.GhostMovement();
+            float inputStrength = input.magnitude;
+            _cachedInput = input;
+            _gamePadAddedSpeed = inputStrength;
 
-        Vector2 input = _inputs.GhostMovement();
-        float inputStrength = input.magnitude;
-        _cachedInput = input;
-        _gamePadAddedSpeed = inputStrength;
+            float timestamp = Time.time;
 
-        UpdateFacingDirection(input);
+            // Client prediction
+            SimulateMovement(input, inputStrength);
+            UpdateFacingDirection(input);
 
-        SendInputToServerRpc(input, inputStrength);
+            inputHistory.Enqueue(new InputFrame
+            {
+                timestamp = timestamp,
+                input = input,
+                strength = inputStrength
+            });
+
+            if (inputHistory.Count > 100)
+                inputHistory.Dequeue();
+
+            SendInputToServerRpc(input, inputStrength, timestamp);
+
+            float error = Vector3.Distance(transform.position, lastServerPosition);
+            if (error > reconciliationThreshold)
+            {
+                transform.position = Vector3.Lerp(transform.position, lastServerPosition, 0.5f);
+                _ghostValues.rigidBody.velocity = Vector2.Lerp(_ghostValues.rigidBody.velocity, lastServerVelocity, 0.5f);
+            }
+        }
     }
 
-    [ServerRpc]
-    private void SendInputToServerRpc(Vector2 input, float inputStrength)
-    {
-        MoveGhost(input, inputStrength);
-        UpdateGhostVisualClientRpc(input);
-    }
-
-    private void MoveGhost(Vector2 direction, float strength)
+    private void SimulateMovement(Vector2 direction, float strength)
     {
         if (direction == Vector2.zero)
         {
@@ -58,6 +92,31 @@ public class GhostMovement : NetworkBehaviour
         float speed = _ghostValues.moveSpeed;
         Vector2 desiredVelocity = direction.normalized * strength * speed;
         _ghostValues.rigidBody.velocity = desiredVelocity;
+    }
+
+    [ServerRpc]
+    private void SendInputToServerRpc(Vector2 input, float strength, float timestamp)
+    {
+        _cachedInput = input;
+        _gamePadAddedSpeed = strength;
+
+        SimulateMovement(input, strength);
+        SendReconciliationClientRpc(transform.position, _ghostValues.rigidBody.velocity, timestamp);
+        UpdateGhostVisualClientRpc(input);
+    }
+
+    [ClientRpc]
+    private void SendReconciliationClientRpc(Vector3 position, Vector2 velocity, float timestamp)
+    {
+        if (!IsOwner) return;
+
+        lastServerPosition = position;
+        lastServerVelocity = velocity;
+
+        while (inputHistory.Count > 0 && inputHistory.Peek().timestamp <= timestamp)
+        {
+            inputHistory.Dequeue();
+        }
     }
 
     private void UpdateFacingDirection(Vector2 input)
@@ -82,27 +141,11 @@ public class GhostMovement : NetworkBehaviour
     private void UpdateGhostVisualClientRpc(Vector2 input)
     {
         if (IsOwner || !Application.isPlaying) return;
-
-        if (input.x > 0)
-        {
-            _ghostValues.spriteRenderer.flipX = false;
-            _ghostValues.aimDirection.x = 1;
-            _ghostValues.facing = 1;
-        }
-        else if (input.x < 0)
-        {
-            _ghostValues.spriteRenderer.flipX = true;
-            _ghostValues.aimDirection.x = -1;
-            _ghostValues.facing = -1;
-        }
-
-        _ghostValues.aimDirection.y = input.y == 0 ? 0 : (input.y > 0 ? 1 : -1);
+        UpdateFacingDirection(input);
     }
 
     void LateUpdate()
     {
-        //if (!IsOwner) return;
-
         var wizard = _ghostValues._playerManager.GetOtherPlayer();
         if (wizard == null || wizard.cameraFollow == null) return;
 
@@ -116,16 +159,6 @@ public class GhostMovement : NetworkBehaviour
         viewPos.x = Mathf.Clamp(viewPos.x, bounds.x + width, bounds.z - width);
         viewPos.y = Mathf.Clamp(viewPos.y, bounds.y + heigth, bounds.w - heigth);
 
-        // Get world bounds from wizard's camera
-        //_screenBounds = wizardCam.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, wizardCam.transform.position.z));
-        //_screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
-        //Vector3 viewPos = transform.root.position;
-
-        //_upperBound = new Vector2(_screenBounds.x - _objectWidth, _screenBounds.y - _objectHeight);
-        //_lowerBound = new Vector2(_screenBounds.x - ((_screenBounds.x - Camera.main.transform.position.x) * 2) + _objectWidth, _screenBounds.y - ((_screenBounds.y - Camera.main.transform.position.y) * 2) + _objectHeight);
-
-        //viewPos.x = Mathf.Clamp(viewPos.x, _screenBounds.x - ((_screenBounds.x - Camera.main.transform.position.x) * 2) + _objectWidth, _screenBounds.x - _objectWidth);
-        //viewPos.y = Mathf.Clamp(viewPos.y, _screenBounds.y - ((_screenBounds.y - Camera.main.transform.position.y) * 2) + _objectHeight, _screenBounds.y - _objectHeight);
         transform.root.position = viewPos;
     }
 

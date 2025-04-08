@@ -13,7 +13,10 @@ public class PlayersSelectionInputs : MonoBehaviour
 
     private void Start()
     {
-        _selectionPanel.Initialize(_input);
+        if (_selectionPanel != null)
+        {
+            _selectionPanel.Initialize(_input);
+        }
     }
 
     // Update is called once per frame

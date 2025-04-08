@@ -13,7 +13,6 @@ public enum CurrentInputState
 public class MyInputManager : MonoBehaviour
 {
     [SerializeField] private CurrentInputState _inputMap;
-    [SerializeField] private CanvasGroup reconectCanvas;
     private PlayerInput _playerInput;
     private InputActionAsset inputAsset;
     private InputActionMap wizardMap;
@@ -91,21 +90,13 @@ public class MyInputManager : MonoBehaviour
         SetInputMap(_inputMap);
     }
 
-    private void Start()
-    {
-        reconectCanvas.alpha = 0;
-    }
-
     private void DeviceLost(PlayerInput playerInput)
     {
         Time.timeScale = 0;
-        reconectCanvas.alpha = 1f;
     }
     private void DeviceRegained(PlayerInput playerInput)
     {
         Time.timeScale = 1;
-        reconectCanvas.alpha = 0f;
-
     }
 
     public void SetInputMap(CurrentInputState map)
