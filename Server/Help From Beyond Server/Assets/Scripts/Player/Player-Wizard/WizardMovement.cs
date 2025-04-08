@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 
 public class WizardMovement : NetworkBehaviour
@@ -14,13 +15,35 @@ public class WizardMovement : NetworkBehaviour
     // actions performed
     private bool dashPerformed = false;
 
-    //jump things
-    private bool falling;
-
     //dash timer
     private MyStopwatch dashTimer;
 
     private Vector2 cachedInput;
+
+    private struct InputFrame
+    {
+        public float timestamp;
+        public Vector2 movement;
+        public bool jump;
+        public bool dash;
+    }
+
+    private Queue<InputFrame> inputHistory = new Queue<InputFrame>();
+    private const float reconciliationThreshold = 0.15f;
+    private Vector3 lastServerPosition;
+    private Vector2 lastServerVelocity;
+
+    private float jumpBufferTimer = 0f;
+    private float dashBufferTimer = 0f;
+    private const float inputBufferDuration = 0.25f;
+
+    private bool _isLocallyGrounded;
+
+    private float coyoteTimer = 0f;
+    private const float coyoteTime = 0.1f;
+
+    // Store smoothed input
+    private Vector2 _smoothedInput = Vector2.zero;
 
     private void Start()
     {
@@ -28,43 +51,134 @@ public class WizardMovement : NetworkBehaviour
         dashTimer = gameObject.AddComponent<MyStopwatch>();
         _wizardValues = GetComponent<WizardValues>();
         _inputs = GetComponentInParent<MyInputManager>();
-    }
 
-
-    private void FixedUpdate()
-    {
-        if (!IsServer) return;
-
-        HandleServerMovement();
-        UpdateAnimationValues(); // Server updates the animations
+        coyoteTimer = coyoteTime;
+        jumpBufferTimer = 0f;
+        dashBufferTimer = 0f;
     }
 
     private void Update()
     {
         if (!IsOwner) return;
 
-        HandleClienInput();
+        if (_inputs.WizardJumpPerformedThisFrame())
+            jumpBufferTimer = inputBufferDuration;
+
+        if (_inputs.WizardDashPerformedThisFrame())
+            dashBufferTimer = inputBufferDuration;
+    }
+
+    private void FixedUpdate()
+    {
+        _isLocallyGrounded = _wizardValues.IsGrounded();
+        coyoteTimer = _isLocallyGrounded ? coyoteTime : Mathf.Max(0f, coyoteTimer - Time.fixedDeltaTime);
+
+        if (!IsServer && _isLocallyGrounded && dashPerformed && 
+            dashTimer.GetElapsedSeconds() > _wizardValues.dashCooldown)
+        {
+            dashPerformed = false;
+        }
+
+        if (IsServer)
+        {
+            HandleServerMovement();
+            UpdateAnimationValues(); // Server updates the animations
+        }
+        else if (IsOwner)
+        {
+            Vector2 moveInput = _inputs.WizardMovement();
+
+            jumpBufferTimer -= Time.fixedDeltaTime;
+            dashBufferTimer -= Time.fixedDeltaTime;
+
+            bool jump = jumpBufferTimer > 0f;
+            bool dash = dashBufferTimer > 0f;
+
+            float timestamp = Time.time;
+            cachedInput = moveInput;
+
+            SimulateMovement(moveInput);
+
+            // Predict actions locally only if not the server
+            if (IsOwner)
+            {
+                if (jump) TryJumpClientPredicted();
+                if (dash) TryDashClientPredicted();
+            }
+
+            inputHistory.Enqueue(new InputFrame
+            {
+                timestamp = timestamp,
+                movement = moveInput,
+                jump = jump,
+                dash = dash
+            });
+
+            // Prevent unbounded growth
+            if (inputHistory.Count > 100)
+            {
+                inputHistory.Dequeue();
+            }
+
+            SendInputToServerRpc(moveInput, jump, dash, timestamp);
+
+            if (jump) jumpBufferTimer = 0f;
+            if (dash) dashBufferTimer = 0f;
+
+            HandleCameraLookOffset(moveInput);
+
+            float positionError = Vector3.Distance(transform.position, lastServerPosition);
+            if (positionError > reconciliationThreshold)
+            {
+                // Smoothly interpolate back to server position
+                float blend = Mathf.Clamp01((positionError - reconciliationThreshold) * 5f);
+                transform.position = Vector3.Lerp(transform.position, lastServerPosition, blend);
+                _wizardValues.rigidBody.velocity = Vector2.Lerp(_wizardValues.rigidBody.velocity, lastServerVelocity, blend);
+            }
+        }
+    }
+
+    private void SimulateMovement(Vector2 input)
+    {
+        _smoothedInput = Vector2.Lerp(_smoothedInput, input, 0.25f); // smooth over time
+
+        Vector2 velocity = _wizardValues.rigidBody.velocity;
+        float moveSpeed = _isLocallyGrounded ? _wizardValues.moveSpeed
+            : velocity.y > 0 ? _wizardValues.moveSpeed / 2 : _wizardValues.moveSpeed / 4;
+
+        if (_smoothedInput != Vector2.zero)
+        {
+            Vector2 dir = _smoothedInput.normalized;
+            float targetSpeed = _smoothedInput.magnitude * moveSpeed;
+            velocity.x = Mathf.Lerp(velocity.x, dir.x * targetSpeed, 0.3f);
+        }
+        else
+        {
+            velocity.x = Mathf.Lerp(velocity.x, 0f, 0.15f);
+        }
+
+        _wizardValues.rigidBody.velocity = new Vector2(
+            Mathf.Clamp(velocity.x, -moveSpeed * 1.1f, moveSpeed * 1.1f),
+            _wizardValues.rigidBody.velocity.y
+        );
+
+        UpdateFacingDirection(_smoothedInput);
     }
 
     // ================================
-    // CLIENT: Input Collection
+    // CLIENT: Reconciliation
     // ================================
-    private void HandleClienInput()
+    [ClientRpc]
+    private void SendReconciliationClientRpc(Vector3 pos, Vector2 velocity, float timestamp)
     {
-        // Movement input
-        cachedInput = _inputs.WizardMovement();
-        SendMovementInputServerRpc(cachedInput);
+        if (!IsOwner) return;
 
-        // Jump
-        if (_inputs.WizardJumpPerformedThisFrame())
-        {
-            SendJumpRequestServerRpc();
-        }
+        lastServerPosition = pos;
+        lastServerVelocity = velocity;
 
-        // Dash
-        if (_inputs.WizardDashPerformedThisFrame())
+        while (inputHistory.Count > 0 && inputHistory.Peek().timestamp <= timestamp)
         {
-            SendDashRequestServerRpc();
+            inputHistory.Dequeue();
         }
     }
 
@@ -72,22 +186,17 @@ public class WizardMovement : NetworkBehaviour
     // SERVER RPCs (Called by Owner Client)
     // ================================
     [ServerRpc]
-    private void SendMovementInputServerRpc(Vector2 input)
+    private void SendInputToServerRpc(Vector2 input, bool jump, bool dash, float timestamp)
     {
         cachedInput = input;
+        HandleServerMovement();
+
+        if (jump) TryJump();
+        if (dash) TryDash();
+
+        SendReconciliationClientRpc(transform.position, _wizardValues.rigidBody.velocity, timestamp);
     }
 
-    [ServerRpc]
-    private void SendJumpRequestServerRpc()
-    {
-        TryJump();
-    }
-
-    [ServerRpc]
-    private void SendDashRequestServerRpc()
-    {
-        TryDash();
-    }
 
     // ================================
     // SERVER: Movement + Logic
@@ -95,29 +204,43 @@ public class WizardMovement : NetworkBehaviour
     private void HandleServerMovement()
     {
         Vector2 direction = cachedInput.normalized;
-        _gamePadAddedSpeed = direction.magnitude;
+        float strength = direction.magnitude;
         if (direction == Vector2.zero) return;
 
         float moveSpeed = _wizardValues.IsGrounded() ? _wizardValues.moveSpeed
             : _wizardValues.rigidBody.velocity.y > 0 ? _wizardValues.moveSpeed / 2 :
-        _wizardValues.moveSpeed / 4;
+              _wizardValues.moveSpeed / 4;
 
-        direction *= _gamePadAddedSpeed;
+        direction *= strength;
         Vector2 force = direction * moveSpeed - _wizardValues.rigidBody.velocity;
         _wizardValues.rigidBody.AddForce(force);
 
         UpdateFacingDirection(direction);
 
-        // Dash cooldown
         if (_wizardValues.IsGrounded() && dashPerformed && dashTimer.GetElapsedSeconds() > _wizardValues.dashCooldown)
         {
             ResetDash();
         }
 
-        // Double jump reset
         if (_wizardValues.IsGrounded() && _wizardValues.doubleJumpPerformed)
         {
             ResetDoubleJump();
+        }
+    }
+
+    private void HandleCameraLookOffset(Vector2 input)
+    {
+        if (input.y > 0.9f)
+        {
+            _wizardValues._playerManager.cameraFollow.UpLookOffset();
+        }
+        else if (input.y < -0.9f)
+        {
+            _wizardValues._playerManager.cameraFollow.DownLookOffset();
+        }
+        else
+        {
+            _wizardValues._playerManager.cameraFollow.ResetOffset();
         }
     }
 
@@ -130,19 +253,39 @@ public class WizardMovement : NetworkBehaviour
         }
         else
         {
-            PlayerManager other = _wizardValues._playerManager.GetOtherPlayer();
+            TryDoubleJump();
+        }
+    }
 
-            if (other != null && !_wizardValues.doubleJumpPerformed)
+    private void TryJumpClientPredicted()
+    {
+        bool canJump =
+        coyoteTimer > 0f ||
+        (_wizardValues.rigidBody.velocity.y > -0.01f && _wizardValues.rigidBody.velocity.y < 0.01f);
+
+        if (canJump)
+        {
+            Vector2 vel = _wizardValues.rigidBody.velocity;
+            vel.y = _wizardValues.jumpForce;
+            _wizardValues.rigidBody.velocity = vel;
+            coyoteTimer = 0f;
+        }
+    }
+
+    private void TryDoubleJump()
+    {
+        PlayerManager other = _wizardValues._playerManager.GetOtherPlayer();
+
+        if (other != null && !_wizardValues.doubleJumpPerformed)
+        {
+            float dist = Vector3.Distance(other.transform.position, transform.position);
+            if (dist < _wizardValues.minDistanceToGhost)
             {
-                float dist = Vector3.Distance(other.transform.position, transform.position);
-                if (dist < _wizardValues.minDistanceToGhost)
-                {
-                    _wizardValues.doubleJumpPerformed = true;
-                    _wizardValues.rigidBody.velocity *= new Vector2(1, 0);
-                    ResetDash();
-                    Jump();
-                    _wizardValues._playerManager._soundManager.PlayDoubleJumpSound();
-                }
+                _wizardValues.doubleJumpPerformed = true;
+                _wizardValues.rigidBody.velocity *= new Vector2(1, 0);
+                ResetDash();
+                Jump();
+                _wizardValues._playerManager._soundManager.PlayDoubleJumpSound();
             }
         }
     }
@@ -151,25 +294,37 @@ public class WizardMovement : NetworkBehaviour
     {
         _wizardValues.rigidBody.velocity *= new Vector2(1, 0);
 
-        float force = cachedInput == Vector2.zero
-            ? _wizardValues.jumpForce / 1.25f
+        float force = cachedInput == Vector2.zero 
+            ? _wizardValues.jumpForce / 1.25f 
             : _wizardValues.jumpForce;
 
         _wizardValues.rigidBody.AddForce(Vector2.up * force, ForceMode2D.Impulse);
-    }
-
-    private void ResetDoubleJump()
-    {
-        _wizardValues.doubleJumpPerformed = false;
     }
 
     private void TryDash()
     {
         if (dashPerformed || !_wizardValues.IsGrounded()) return;
 
-        _cameraShake.Shake(0.1f, 0.1f);
+        ExecuteDash();
+    }
 
+    private void TryDashClientPredicted()
+    {
+        bool canDash = !dashPerformed && (coyoteTimer > 0f || Mathf.Abs(_wizardValues.rigidBody.velocity.y) < 0.01f);
+
+        if (!canDash) return;
+
+        Vector2 vel = _wizardValues.rigidBody.velocity;
+        vel.x = _wizardValues.facingDirection * _wizardValues.dashForce;
+        _wizardValues.rigidBody.velocity = vel;
+        dashPerformed = true;
+    }
+
+    private void ExecuteDash()
+    {
+        _cameraShake.Shake(0.1f, 0.1f);
         _wizardValues.rigidBody.velocity *= new Vector2(0, 1);
+
         dashTimer.Restart();
         dashPerformed = true;
 
@@ -204,6 +359,11 @@ public class WizardMovement : NetworkBehaviour
         dashTimer.ResetStopwatch();
     }
 
+    private void ResetDoubleJump()
+    {
+        _wizardValues.doubleJumpPerformed = false;
+    }
+
     private void UpdateFacingDirection(Vector2 direction)
     {
         if (direction.x > 0)
@@ -213,7 +373,6 @@ public class WizardMovement : NetworkBehaviour
             _wizardValues.collider2D.offset =
                 new Vector2(Mathf.Abs(_wizardValues.collider2D.offset.x), _wizardValues.collider2D.offset.y);
 
-            // Set the direction of the player to the right
             SetFacingClientRpc(1);
         }
         else if (direction.x < 0)
@@ -223,7 +382,6 @@ public class WizardMovement : NetworkBehaviour
             _wizardValues.collider2D.offset =
                 new Vector2(-Math.Abs(_wizardValues.collider2D.offset.x), _wizardValues.collider2D.offset.y);
 
-            // Set the direction of the player to the left
             SetFacingClientRpc(-1);
         }
     }
